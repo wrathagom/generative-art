@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagonal Lines Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <a href="index.html" class="back-button">← Back to Gallery</a>
+
+            <div class="generator-header">
+                <h1>Diagonal Lines Generator</h1>
+                <p>Generate mesmerizing patterns with diagonal lines that form intricate shapes</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="500" min="100" max="2000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="500" min="100" max="2000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="gridSize">Grid Size (px)</label>
+                        <input type="number" id="gridSize" value="20" min="5" max="100">
+                        <small>Size of each grid square</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="strokeWidth">Line Width (px)</label>
+                        <input type="number" id="strokeWidth" value="4" min="1" max="20">
+                        <small>Width of the diagonal lines</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="fillSquares">
+                        <input type="checkbox" id="fillSquares" checked>
+                        Fill Diamond Patterns
+                    </label>
+                    <small>Automatically fill diamond shapes formed by the lines</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="showPathfinders">
+                        <input type="checkbox" id="showPathfinders">
+                        Show Pathfinders
+                    </label>
+                    <small>Trace paths from edge white spaces</small>
+                </div>
+
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="pathfinderMode">Pathfinder Display</label>
+                        <select id="pathfinderMode">
+                            <option value="all">Show All Paths</option>
+                            <option value="longest" selected>Show Longest Path</option>
+                        </select>
+                        <small>Choose how many paths to draw</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="pathfinderColor">Path Color</label>
+                        <input type="color" id="pathfinderColor" value="#FF6B6B">
+                        <small>Stroke color for path overlays</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="pathfinderStyle">Path Style</label>
+                        <select id="pathfinderStyle">
+                            <option value="jagged" selected>Jagged</option>
+                            <option value="smooth">Smooth Spline</option>
+                        </select>
+                        <small>Draw straight segments or a smoothed curve</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="pathfinderWidth">Path Width (px)</label>
+                        <input type="number" id="pathfinderWidth" value="2" min="1" max="10">
+                        <small>Thickness of path lines</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="pathfinderMinLength">Minimum Path Length</label>
+                        <input type="number" id="pathfinderMinLength" value="3" min="1" max="500">
+                        <small>Ignore paths shorter than this many segments</small>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="diagonal-lines.js"></script>
+</body>
+</html>

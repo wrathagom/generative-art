@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaotic Lines Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <a href="index.html" class="back-button">← Back to Gallery</a>
+
+            <div class="generator-header">
+                <h1>Chaotic Lines Generator</h1>
+                <p>Create stunning abstract art with randomly oriented lines in customizable grids</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="1920" min="100" max="4000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="1080" min="100" max="4000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="xGridCount">Horizontal Grids</label>
+                        <input type="number" id="xGridCount" value="32" min="1" max="100">
+                        <small>Number of grids along the x-axis</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="yGridCount">Vertical Grids</label>
+                        <input type="number" id="yGridCount" value="18" min="1" max="100">
+                        <small>Number of grids along the y-axis</small>
+                    </div>
+
+                <div class="control-group">
+                    <label for="linesPerGrid">Lines per Grid</label>
+                    <input type="number" id="linesPerGrid" value="100" min="1" max="500">
+                    <small>Number of lines to draw in each grid</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="gridGap">Grid Gap (px)</label>
+                    <input type="number" id="gridGap" value="0" min="0" max="200">
+                    <small>Spacing between grid cells</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="lineOrientation">Line Orientation</label>
+                    <select id="lineOrientation">
+                        <option value="chaos">Chaos (Random)</option>
+                        <option value="horizontal">Horizontal</option>
+                            <option value="vertical">Vertical</option>
+                        </select>
+                        <small>Direction of the lines</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="coolorsUrl">Coolors.co Palette URL (optional)</label>
+                    <input type="text" id="coolorsUrl" placeholder="https://coolors.co/palette/c6d0f5-f4b8e4-ca9ee6-e78284-ef9f76">
+                    <small>Paste a Coolors.co URL to use that color scheme</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="backgroundColor">Background Color</label>
+                    <input type="color" id="backgroundColor" value="#232634">
+                    <small>Canvas background color</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="useFocalPoint">
+                        <input type="checkbox" id="useFocalPoint">
+                        Orient Lines Around Focal Point
+                    </label>
+                    <small>Align line direction toward a specific X/Y coordinate</small>
+                </div>
+
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="focalPointX">Focal X (px)</label>
+                        <input type="number" id="focalPointX" value="960" min="0" max="4000">
+                        <small>Horizontal focal position</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="focalPointY">Focal Y (px)</label>
+                        <input type="number" id="focalPointY" value="540" min="0" max="4000">
+                        <small>Vertical focal position</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Custom Color Scheme</label>
+                    <div id="colorInputs" class="color-inputs">
+                        <div class="color-input-group">
+                            <input type="color" value="#EF476F">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#FFD166">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#06D6A0">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#118AB2">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#073B4C">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-color" id="addColorButton" style="margin-top: 0.5rem;">Add Color</button>
+                    <small>Colors used in the artwork (overridden by Coolors URL if provided)</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="chaotic-lines.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Rain Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <a href="index.html" class="back-button">← Back to Gallery</a>
+
+            <div class="generator-header">
+                <h1>Code Rain Generator</h1>
+                <p>Create a matrix-style rain of glyphs with adjustable speed, density, and colors</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="1200" min="100" max="4000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="700" min="100" max="4000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="fontSize">Font Size (px)</label>
+                        <input type="number" id="fontSize" value="18" min="8" max="64">
+                        <small>Size of the falling glyphs</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="speed">Frame Delay (ms)</label>
+                        <input type="number" id="speed" value="40" min="10" max="200">
+                        <small>Lower values move faster</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="trailOpacity">Trail Opacity</label>
+                        <input type="number" id="trailOpacity" value="0.08" min="0.01" max="0.3" step="0.01">
+                        <small>Higher values shorten trails</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="density">Density</label>
+                        <input type="number" id="density" value="0.6" min="0.05" max="3" step="0.05">
+                        <small>Higher values draw more glyphs per column</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="glyphs">Glyph Set</label>
+                        <input type="text" id="glyphs" value="01アイウエオカキクケコサシスセソ">
+                        <small>Characters to use in the rain</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backgroundColor">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#040a06">
+                        <small>Canvas background color</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="textColor">Text Color</label>
+                        <input type="color" id="textColor" value="#6dff7a">
+                        <small>Used when only one color is provided</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="coolorsUrl">Coolors.co Palette URL (optional)</label>
+                    <input type="text" id="coolorsUrl" placeholder="https://coolors.co/palette/6dff7a-3ddc84-00b894-00cec9-00a8ff">
+                    <small>Paste a Coolors.co URL to use that color scheme</small>
+                </div>
+
+                <div class="control-group">
+                    <label>Custom Color Scheme</label>
+                    <div id="colorInputs" class="color-inputs">
+                        <div class="color-input-group">
+                            <input type="color" value="#6DFF7A">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#3DDC84">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#00B894">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#00CEC9">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-color" id="addColorButton" style="margin-top: 0.5rem;">Add Color</button>
+                    <small>Colors used when palette mode is selected</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate</button>
+                    <button class="secondary" id="toggleButton">Stop</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="code-rain.js"></script>
+</body>
+</html>

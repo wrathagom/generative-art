@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joy Division Waves Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <a href="index.html" class="back-button">← Back to Gallery</a>
+
+            <div class="generator-header">
+                <h1>Joy Division Waves Generator</h1>
+                <p>Create iconic wavy line art inspired by the Unknown Pleasures album cover</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="800" min="100" max="2000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="600" min="100" max="2000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="numberLines">Number of Lines</label>
+                        <input type="number" id="numberLines" value="40" min="5" max="100">
+                        <small>How many wavy lines to draw</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="numberSegments">Number of Segments</label>
+                        <input type="number" id="numberSegments" value="50" min="10" max="200">
+                        <small>Smoothness of each line (more = smoother)</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="maxRandomHeight">Max Wave Height</label>
+                        <input type="number" id="maxRandomHeight" value="8" min="1" max="50">
+                        <small>Maximum height of the waves</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="lineWeight">Line Weight (px)</label>
+                        <input type="number" id="lineWeight" value="2" min="1" max="10">
+                        <small>Thickness of the lines</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="bezierWeight">Bezier Weight</label>
+                        <input type="number" id="bezierWeight" value="2" min="1" max="10" step="0.5">
+                        <small>Smoothness of the curves (lower = more smooth)</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="weightDirection">Wave Pattern</label>
+                        <select id="weightDirection">
+                            <option value="random">Random</option>
+                            <option value="center">Center Weighted</option>
+                            <option value="left">Left Weighted</option>
+                            <option value="right">Right Weighted</option>
+                        </select>
+                        <small>Where waves are most prominent</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backgroundColor">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#000000">
+                        <small>Background color</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="lineColor">Line Color</label>
+                        <input type="color" id="lineColor" value="#ffffff">
+                        <small>Color of the wave lines</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="fillLines">
+                        <input type="checkbox" id="fillLines" checked>
+                        Fill Lines with Colors
+                    </label>
+                    <small>Fill the area under each line with colors</small>
+                </div>
+
+                <div class="control-group" id="colorModeGroup">
+                    <label for="colorMode">Color Mode</label>
+                    <select id="colorMode">
+                        <option value="random">Random Colors</option>
+                        <option value="zones">Zoned Colors (Beach Scene)</option>
+                    </select>
+                    <small>How to apply colors to the lines</small>
+                </div>
+
+                <div id="randomColorControls">
+                    <div class="control-group" id="colorSchemeGroup">
+                        <label for="coolorsUrl">Coolors.co Palette URL (optional)</label>
+                        <input type="text" id="coolorsUrl" placeholder="https://coolors.co/palette/ef476f-ffd166-06d6a0-118ab2-073b4c">
+                        <small>Paste a Coolors.co URL to use that color scheme for fills</small>
+                    </div>
+
+                    <div class="control-group" id="customColorsGroup">
+                        <label>Custom Fill Colors</label>
+                        <div id="colorInputs" class="color-inputs">
+                            <div class="color-input-group">
+                                <input type="color" value="#EF476F">
+                                <button type="button" class="remove-color">Remove</button>
+                            </div>
+                            <div class="color-input-group">
+                                <input type="color" value="#FFD166">
+                                <button type="button" class="remove-color">Remove</button>
+                            </div>
+                            <div class="color-input-group">
+                                <input type="color" value="#06D6A0">
+                                <button type="button" class="remove-color">Remove</button>
+                            </div>
+                            <div class="color-input-group">
+                                <input type="color" value="#118AB2">
+                                <button type="button" class="remove-color">Remove</button>
+                            </div>
+                            <div class="color-input-group">
+                                <input type="color" value="#073B4C">
+                                <button type="button" class="remove-color">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-color" id="addColorButton" style="margin-top: 0.5rem;">Add Color</button>
+                        <small>Colors used to fill under the lines (overridden by Coolors URL if provided)</small>
+                    </div>
+                </div>
+
+                <div id="zoneColorControls" style="display: none;">
+                    <div class="control-group">
+                        <label>Color Zones (from top to bottom)</label>
+                        <small>Define color zones with individual settings. Each zone covers a percentage of the total lines.</small>
+                        <div id="zoneInputs" class="zone-inputs">
+                            <!-- Sky Zone -->
+                            <div class="zone-card">
+                                <div class="zone-header">
+                                    <input type="text" class="zone-name" value="Sky" placeholder="Zone name">
+                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                    <span class="percentage-label">%</span>
+                                    <button type="button" class="zone-remove">Remove</button>
+                                </div>
+                                <div class="zone-settings">
+                                    <div class="zone-setting-row">
+                                        <label>Fill Color</label>
+                                        <input type="color" class="zone-color" value="#87CEEB">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Color</label>
+                                        <input type="color" class="zone-line-color" value="#ffffff">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Segments</label>
+                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Height</label>
+                                        <input type="number" class="zone-wave-height" value="4" min="1" max="50">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Weight</label>
+                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Bezier Weight</label>
+                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Pattern</label>
+                                        <select class="zone-wave-pattern">
+                                            <option value="random">Random</option>
+                                            <option value="center">Center</option>
+                                            <option value="left">Left</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Grass Zone -->
+                            <div class="zone-card">
+                                <div class="zone-header">
+                                    <input type="text" class="zone-name" value="Grass" placeholder="Zone name">
+                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                    <span class="percentage-label">%</span>
+                                    <button type="button" class="zone-remove">Remove</button>
+                                </div>
+                                <div class="zone-settings">
+                                    <div class="zone-setting-row">
+                                        <label>Fill Color</label>
+                                        <input type="color" class="zone-color" value="#90EE90">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Color</label>
+                                        <input type="color" class="zone-line-color" value="#ffffff">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Segments</label>
+                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Height</label>
+                                        <input type="number" class="zone-wave-height" value="6" min="1" max="50">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Weight</label>
+                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Bezier Weight</label>
+                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Pattern</label>
+                                        <select class="zone-wave-pattern">
+                                            <option value="random">Random</option>
+                                            <option value="center" selected>Center</option>
+                                            <option value="left">Left</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Beach Zone -->
+                            <div class="zone-card">
+                                <div class="zone-header">
+                                    <input type="text" class="zone-name" value="Beach" placeholder="Zone name">
+                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                    <span class="percentage-label">%</span>
+                                    <button type="button" class="zone-remove">Remove</button>
+                                </div>
+                                <div class="zone-settings">
+                                    <div class="zone-setting-row">
+                                        <label>Fill Color</label>
+                                        <input type="color" class="zone-color" value="#F4A460">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Color</label>
+                                        <input type="color" class="zone-line-color" value="#ffffff">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Segments</label>
+                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Height</label>
+                                        <input type="number" class="zone-wave-height" value="8" min="1" max="50">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Weight</label>
+                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Bezier Weight</label>
+                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Pattern</label>
+                                        <select class="zone-wave-pattern">
+                                            <option value="random">Random</option>
+                                            <option value="center" selected>Center</option>
+                                            <option value="left">Left</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Ocean Zone -->
+                            <div class="zone-card">
+                                <div class="zone-header">
+                                    <input type="text" class="zone-name" value="Ocean" placeholder="Zone name">
+                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                    <span class="percentage-label">%</span>
+                                    <button type="button" class="zone-remove">Remove</button>
+                                </div>
+                                <div class="zone-settings">
+                                    <div class="zone-setting-row">
+                                        <label>Fill Color</label>
+                                        <input type="color" class="zone-color" value="#1E90FF">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Color</label>
+                                        <input type="color" class="zone-line-color" value="#ffffff">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Segments</label>
+                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Height</label>
+                                        <input type="number" class="zone-wave-height" value="12" min="1" max="50">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Line Weight</label>
+                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Bezier Weight</label>
+                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                    </div>
+                                    <div class="zone-setting-row">
+                                        <label>Wave Pattern</label>
+                                        <select class="zone-wave-pattern">
+                                            <option value="random">Random</option>
+                                            <option value="center" selected>Center</option>
+                                            <option value="left">Left</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="add-color" id="addZoneButton" style="margin-top: 0.5rem;">Add Zone</button>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="joy-division.js"></script>
+</body>
+</html>

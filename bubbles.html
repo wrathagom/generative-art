@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubbles Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <a href="index.html" class="back-button">← Back to Gallery</a>
+
+            <div class="generator-header">
+                <h1>Bubbles Generator</h1>
+                <p>Scatter layered bubbles with size ranges, fills, and overlap modes</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="1200" min="100" max="4000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="800" min="100" max="4000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="bubbleCount">Number of Bubbles</label>
+                        <input type="number" id="bubbleCount" value="120" min="1" max="2000">
+                        <small>How many bubbles to draw</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="minRadius">Min Radius (px)</label>
+                        <input type="number" id="minRadius" value="8" min="1" max="500">
+                        <small>Smallest bubble size</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="maxRadius">Max Radius (px)</label>
+                        <input type="number" id="maxRadius" value="80" min="1" max="800">
+                        <small>Largest bubble size</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="bubbleStyle">Bubble Style</label>
+                        <select id="bubbleStyle">
+                            <option value="filled" selected>Filled</option>
+                            <option value="outline">Outline</option>
+                            <option value="random">Random</option>
+                        </select>
+                        <small>Filled, outline, or mixed</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="strokeWidth">Outline Width (px)</label>
+                        <input type="number" id="strokeWidth" value="2" min="1" max="20">
+                        <small>Stroke thickness for outlines</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="overlapMode">Overlap Mode</label>
+                        <select id="overlapMode">
+                            <option value="normal" selected>Normal</option>
+                            <option value="add">Additive</option>
+                            <option value="subtract">Subtract</option>
+                            <option value="intersect">Intersect</option>
+                            <option value="random">Random Per Bubble</option>
+                        </select>
+                        <small>Blend style for overlapping bubbles</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backgroundColor">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#0b0f1a">
+                        <small>Canvas background color</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="coolorsUrl">Coolors.co Palette URL (optional)</label>
+                    <input type="text" id="coolorsUrl" placeholder="https://coolors.co/palette/ff6b6b-feca57-54a0ff-5f27cd-1dd1a1">
+                    <small>Paste a Coolors.co URL to use that color scheme</small>
+                </div>
+
+                <div class="control-group">
+                    <label>Custom Color Scheme</label>
+                    <div id="colorInputs" class="color-inputs">
+                        <div class="color-input-group">
+                            <input type="color" value="#FF6B6B">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#FECA57">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#54A0FF">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#5F27CD">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#1DD1A1">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-color" id="addColorButton" style="margin-top: 0.5rem;">Add Color</button>
+                    <small>Colors used for bubbles (overridden by Coolors URL if provided)</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="bubbles.js"></script>
+</body>
+</html>
