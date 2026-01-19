@@ -180,6 +180,16 @@ header p {
     width: 100%;
     height: 250px;
     background: var(--panel-bg);
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 .chaotic-preview {
@@ -223,6 +233,62 @@ header p {
     font-family: "Courier New", monospace;
     font-size: 2rem;
     letter-spacing: 0.2rem;
+}
+
+.flow-preview {
+    background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.9), rgba(56, 189, 248, 0) 55%),
+        radial-gradient(circle at 80% 30%, rgba(249, 115, 22, 0.9), rgba(249, 115, 22, 0) 60%),
+        radial-gradient(circle at 50% 70%, rgba(34, 197, 94, 0.9), rgba(34, 197, 94, 0) 50%),
+        linear-gradient(135deg, #0f172a 0%, #111827 100%);
+}
+
+.voronoi-preview {
+    background: conic-gradient(from 180deg at 50% 50%, #f97316, #0ea5e9, #e11d48, #22c55e, #a855f7, #f97316);
+    filter: saturate(1.1);
+}
+
+.packing-preview {
+    background: radial-gradient(circle at 30% 40%, rgba(239, 68, 68, 0.8), rgba(239, 68, 68, 0) 45%),
+        radial-gradient(circle at 60% 30%, rgba(249, 115, 22, 0.8), rgba(249, 115, 22, 0) 45%),
+        radial-gradient(circle at 70% 70%, rgba(34, 197, 94, 0.8), rgba(34, 197, 94, 0) 45%),
+        radial-gradient(circle at 35% 75%, rgba(14, 165, 233, 0.8), rgba(14, 165, 233, 0) 45%),
+        #f8fafc;
+}
+
+.halftone-preview {
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.4) 15%, transparent 16%) 0 0 / 24px 24px,
+        radial-gradient(circle, rgba(56, 189, 248, 0.5) 12%, transparent 13%) 12px 12px / 24px 24px,
+        linear-gradient(135deg, #0f172a 0%, #111827 100%);
+}
+
+.lissajous-preview {
+    background: radial-gradient(circle at center, rgba(168, 85, 247, 0.3), rgba(15, 23, 42, 0) 60%),
+        linear-gradient(135deg, #0b1020 0%, #1e1b4b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.lissajous-preview::after {
+    content: "";
+    position: absolute;
+    inset: 20% 15%;
+    border: 2px solid rgba(244, 63, 94, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.3);
+}
+
+.kaleido-preview {
+    background: conic-gradient(from 90deg at 50% 50%, #f97316, #f43f5e, #38bdf8, #a855f7, #22c55e, #f97316);
+    position: relative;
+    overflow: hidden;
+}
+
+.kaleido-preview::after {
+    content: "";
+    position: absolute;
+    inset: 25%;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
 }
 
 .art-card h2 {

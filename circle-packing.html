@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circle Packing Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <div class="page-actions">
+                <a href="index.html" class="back-button">← Back to Gallery</a>
+                <button type="button" class="theme-toggle" data-theme-toggle>Theme: System</button>
+            </div>
+
+            <div class="generator-header">
+                <h1>Circle Packing Generator</h1>
+                <p>Grow circles until they collide for dense, tactile compositions</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="1920" min="200" max="4000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="1080" min="200" max="4000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="maxCircles">Target Circles</label>
+                        <input type="number" id="maxCircles" value="220" min="20" max="1200">
+                        <small>Target number of circles to place</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="maxAttempts">Max Attempts</label>
+                        <input type="number" id="maxAttempts" value="5000" min="500" max="20000">
+                        <small>Attempts to find circle placements</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="minRadius">Min Radius (px)</label>
+                        <input type="number" id="minRadius" value="8" min="2" max="200">
+                        <small>Smallest circle size</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="maxRadius">Max Radius (px)</label>
+                        <input type="number" id="maxRadius" value="90" min="5" max="400">
+                        <small>Largest circle size</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="padding">Padding (px)</label>
+                        <input type="number" id="padding" value="2" min="0" max="20">
+                        <small>Spacing between circles</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="fillOpacity">Fill Opacity</label>
+                        <input type="number" id="fillOpacity" value="0.85" min="0.1" max="1" step="0.05">
+                        <small>Transparency for circle fills</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="showStroke">Outline Circles</label>
+                        <input type="checkbox" id="showStroke" checked>
+                        <small>Add a stroke around each circle</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="strokeWidth">Stroke Width (px)</label>
+                        <input type="number" id="strokeWidth" value="1" min="0" max="6">
+                        <small>Outline thickness</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="strokeColor">Stroke Color</label>
+                        <input type="color" id="strokeColor" value="#111827">
+                        <small>Outline color for circles</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backgroundColor">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#f8fafc">
+                        <small>Canvas background color</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Custom Color Scheme</label>
+                    <div id="colorInputs" class="color-inputs">
+                        <div class="color-input-group">
+                            <input type="color" value="#ef4444">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#f97316">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#eab308">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#22c55e">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#0ea5e9">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                    </div>
+                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                    </div>
+                    <small>Palette used to fill circles</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                    <button class="secondary" id="shareButton">Share</button>
+                    <span id="shareFeedback" class="share-feedback"></span>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="coolorsModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="coolorsModalTitle">
+            <div class="modal-header">
+                <h2 id="coolorsModalTitle">Import from Coolors</h2>
+                <button type="button" class="modal-close" id="coolorsModalClose">Close</button>
+            </div>
+            <div class="modal-body">
+                <label for="coolorsImportUrl">Coolors.co Palette URL</label>
+                <input type="text" id="coolorsImportUrl" placeholder="https://coolors.co/palette/ef4444-f97316-eab308-22c55e-0ea5e9">
+                <small>Paste a Coolors.co URL to import its colors</small>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="importCancelButton">Cancel</button>
+                <button type="button" id="importAddButton">Add to Colors</button>
+                <button type="button" class="add-color" id="importOverwriteButton">Overwrite Colors</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="circle-packing.js"></script>
+</body>
+</html>

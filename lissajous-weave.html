@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lissajous Weave Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <div class="page-actions">
+                <a href="index.html" class="back-button">← Back to Gallery</a>
+                <button type="button" class="theme-toggle" data-theme-toggle>Theme: System</button>
+            </div>
+
+            <div class="generator-header">
+                <h1>Lissajous Weave Generator</h1>
+                <p>Layer parametric loops to build an interlaced weave</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="1920" min="200" max="4000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="1080" min="200" max="4000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="layers">Layer Count</label>
+                        <input type="number" id="layers" value="6" min="1" max="20">
+                        <small>Number of loops to draw</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="pointsPerPath">Points per Loop</label>
+                        <input type="number" id="pointsPerPath" value="480" min="100" max="2000">
+                        <small>Smoothness of each curve</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="aFrequency">X Frequency</label>
+                        <input type="number" id="aFrequency" value="3" min="1" max="12">
+                        <small>Horizontal oscillations</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="bFrequency">Y Frequency</label>
+                        <input type="number" id="bFrequency" value="4" min="1" max="12">
+                        <small>Vertical oscillations</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="phase">Base Phase (deg)</label>
+                        <input type="number" id="phase" value="45" min="0" max="360">
+                        <small>Phase offset for the first loop</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="phaseStep">Phase Step (deg)</label>
+                        <input type="number" id="phaseStep" value="20" min="0" max="180">
+                        <small>Rotation between consecutive loops</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="amplitude">Amplitude (%)</label>
+                        <input type="number" id="amplitude" value="78" min="20" max="95">
+                        <small>Size of the loop relative to canvas</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="lineWidth">Line Width (px)</label>
+                        <input type="number" id="lineWidth" value="2" min="1" max="8">
+                        <small>Stroke weight for the weave</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backgroundColor">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#0b1020">
+                        <small>Canvas background color</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Custom Color Scheme</label>
+                    <div id="colorInputs" class="color-inputs">
+                        <div class="color-input-group">
+                            <input type="color" value="#f43f5e">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#f97316">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#38bdf8">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#a855f7">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#22c55e">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                    </div>
+                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                    </div>
+                    <small>Palette used for each loop</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                    <button class="secondary" id="shareButton">Share</button>
+                    <span id="shareFeedback" class="share-feedback"></span>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="coolorsModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="coolorsModalTitle">
+            <div class="modal-header">
+                <h2 id="coolorsModalTitle">Import from Coolors</h2>
+                <button type="button" class="modal-close" id="coolorsModalClose">Close</button>
+            </div>
+            <div class="modal-body">
+                <label for="coolorsImportUrl">Coolors.co Palette URL</label>
+                <input type="text" id="coolorsImportUrl" placeholder="https://coolors.co/palette/f43f5e-f97316-38bdf8-a855f7-22c55e">
+                <small>Paste a Coolors.co URL to import its colors</small>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="importCancelButton">Cancel</button>
+                <button type="button" id="importAddButton">Add to Colors</button>
+                <button type="button" class="add-color" id="importOverwriteButton">Overwrite Colors</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="lissajous-weave.js"></script>
+</body>
+</html>

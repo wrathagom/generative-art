@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voronoi Tiles Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="generator-container">
+            <div class="page-actions">
+                <a href="index.html" class="back-button">← Back to Gallery</a>
+                <button type="button" class="theme-toggle" data-theme-toggle>Theme: System</button>
+            </div>
+
+            <div class="generator-header">
+                <h1>Voronoi Tiles Generator</h1>
+                <p>Paint cell neighborhoods around scattered seeds for stained-glass mosaics</p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="grid-layout">
+                    <div class="control-group">
+                        <label for="displayWidth">Canvas Width (px)</label>
+                        <input type="number" id="displayWidth" value="1920" min="200" max="4000">
+                        <small>Width of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="displayHeight">Canvas Height (px)</label>
+                        <input type="number" id="displayHeight" value="1080" min="200" max="4000">
+                        <small>Height of the canvas in pixels</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="seedCount">Seed Count</label>
+                        <input type="number" id="seedCount" value="40" min="5" max="200">
+                        <small>Number of Voronoi seed points</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="cellSize">Tile Size (px)</label>
+                        <input type="number" id="cellSize" value="18" min="4" max="80">
+                        <small>Resolution of the mosaic tiles</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="jitter">Seed Jitter</label>
+                        <input type="number" id="jitter" value="0.7" min="0" max="1" step="0.05">
+                        <small>Higher values spread seeds across the canvas</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="showBorders">Draw Borders</label>
+                        <input type="checkbox" id="showBorders" checked>
+                        <small>Add outlines between tiles</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="borderWidth">Border Width (px)</label>
+                        <input type="number" id="borderWidth" value="1" min="0" max="6">
+                        <small>Stroke width for tile borders</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="borderColor">Border Color</label>
+                        <input type="color" id="borderColor" value="#111827">
+                        <small>Outline color for tiles</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backgroundColor">Background Color</label>
+                        <input type="color" id="backgroundColor" value="#f8fafc">
+                        <small>Canvas background color</small>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Custom Color Scheme</label>
+                    <div id="colorInputs" class="color-inputs">
+                        <div class="color-input-group">
+                            <input type="color" value="#f97316">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#0ea5e9">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#e11d48">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#22c55e">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" value="#a855f7">
+                            <button type="button" class="remove-color">Remove</button>
+                        </div>
+                    </div>
+                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                    </div>
+                    <small>Palette used for Voronoi tiles</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                    <button class="secondary" id="shareButton">Share</button>
+                    <span id="shareFeedback" class="share-feedback"></span>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="coolorsModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="coolorsModalTitle">
+            <div class="modal-header">
+                <h2 id="coolorsModalTitle">Import from Coolors</h2>
+                <button type="button" class="modal-close" id="coolorsModalClose">Close</button>
+            </div>
+            <div class="modal-body">
+                <label for="coolorsImportUrl">Coolors.co Palette URL</label>
+                <input type="text" id="coolorsImportUrl" placeholder="https://coolors.co/palette/f97316-0ea5e9-e11d48-22c55e-a855f7">
+                <small>Paste a Coolors.co URL to import its colors</small>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="importCancelButton">Cancel</button>
+                <button type="button" id="importAddButton">Add to Colors</button>
+                <button type="button" class="add-color" id="importOverwriteButton">Overwrite Colors</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="voronoi-tiles.js"></script>
+</body>
+</html>

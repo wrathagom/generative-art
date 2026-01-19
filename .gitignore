@@ -19,5 +19,8 @@ node_modules/
 dist/
 build/
 
+# Generated art output
+generated/
+
 # Logs
 *.log
