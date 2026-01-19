@@ -568,4 +568,7 @@ window.addEventListener('load', () => {
     } else {
         generateArt();
     }
+
+    // Handle auto-download if requested via URL param
+    handleAutoDownload({ png: downloadArt, svg: downloadSVG });
 });

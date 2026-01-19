@@ -209,3 +209,30 @@ function initThemeToggle() {
 }
 
 document.addEventListener('DOMContentLoaded', initThemeToggle);
+
+// Auto-download support for programmatic/headless usage
+// supportedFormats: object mapping format names to download functions
+// e.g., { png: downloadArt, svg: downloadSVG, gif: downloadGif, webm: recordWebm }
+function handleAutoDownload(supportedFormats) {
+    const params = new URLSearchParams(window.location.search);
+    const format = params.get('autodownload');
+
+    if (!format) return false;
+
+    const normalizedFormat = format.toLowerCase();
+
+    if (!supportedFormats[normalizedFormat]) {
+        console.warn(`Auto-download format "${format}" not supported. Available: ${Object.keys(supportedFormats).join(', ')}`);
+        return false;
+    }
+
+    // For animated formats, we need a delay to capture frames
+    const animatedFormats = ['gif', 'webm'];
+    const delay = animatedFormats.includes(normalizedFormat) ? 100 : 50;
+
+    setTimeout(() => {
+        supportedFormats[normalizedFormat]();
+    }, delay);
+
+    return true;
+}
