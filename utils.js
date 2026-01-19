@@ -132,6 +132,26 @@ function generateSeed() {
     return Math.floor(Math.random() * 2147483647);
 }
 
+function setFaviconFromCanvas(sourceCanvas, size = 32) {
+    if (!sourceCanvas) return;
+    const faviconCanvas = document.createElement('canvas');
+    faviconCanvas.width = size;
+    faviconCanvas.height = size;
+    const ctx = faviconCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(sourceCanvas, 0, 0, size, size);
+
+    let link = document.querySelector('link[rel~="icon"]');
+    if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+    }
+    link.type = 'image/png';
+    link.href = faviconCanvas.toDataURL('image/png');
+}
+
 const THEME_STORAGE_KEY = 'theme-preference';
 const THEME_ORDER = ['system', 'light', 'dark'];
 

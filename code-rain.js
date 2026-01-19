@@ -4,6 +4,7 @@ let columns = [];
 let settings = null;
 let currentSeed = null;
 let gifLibraryPromise = null;
+let lastFaviconUpdate = -1000;
 
 // Form input IDs for serialization
 const FORM_INPUT_IDS = [
@@ -138,6 +139,11 @@ function drawFrame(timestamp) {
         } else {
             column.y += settings.fontSize * column.speed;
         }
+    }
+
+    if (timestamp - lastFaviconUpdate > 1000) {
+        setFaviconFromCanvas(canvas);
+        lastFaviconUpdate = timestamp;
     }
 
     animationId = requestAnimationFrame(drawFrame);

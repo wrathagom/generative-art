@@ -346,6 +346,8 @@ function generateArt(seed = null) {
     } else {
         pathData = [];
     }
+
+    setFaviconFromCanvas(canvas);
 }
 
 function downloadArt() {

@@ -1,11 +1,19 @@
 let bubblesData = [];
 let lastBackgroundColor = '#0b0f1a';
 let currentSeed = null;
+let animationFrameId = null;
+let lastTimestamp = 0;
+let animationEnabled = false;
+let animationSpeed = 0;
+let animationBuffer = null;
+let animationBufferCtx = null;
+let lastFaviconUpdate = -1000;
 
 // Form input IDs for serialization
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'bubbleCount', 'minRadius', 'maxRadius',
-    'bubbleStyle', 'strokeWidth', 'overlapMode', 'backgroundColor'
+    'bubbleStyle', 'strokeWidth', 'overlapMode', 'animateBubbles', 'bubbleSpeed',
+    'backgroundColor'
 ];
 
 function createColorInputGroup(colorValue) {
@@ -91,13 +99,143 @@ function pickDrawMode(style) {
     return style;
 }
 
+function getAnimationSettings() {
+    const animateBubbles = document.getElementById('animateBubbles');
+    const bubbleSpeed = document.getElementById('bubbleSpeed');
+    const speed = Math.max(0, parseFloat(bubbleSpeed.value) || 0);
+
+    return {
+        enabled: animateBubbles.checked,
+        speed
+    };
+}
+
+function updateAnimationControlState() {
+    const animateBubbles = document.getElementById('animateBubbles');
+    const bubbleSpeed = document.getElementById('bubbleSpeed');
+    bubbleSpeed.disabled = !animateBubbles.checked;
+}
+
+function ensureAnimationBuffer(width, height) {
+    if (!animationBuffer) {
+        animationBuffer = document.createElement('canvas');
+    }
+    animationBuffer.width = width;
+    animationBuffer.height = height;
+    animationBufferCtx = animationBuffer.getContext('2d');
+}
+
+function renderFrame() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!animationBufferCtx) {
+        ensureAnimationBuffer(canvas.width, canvas.height);
+    }
+
+    animationBufferCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const bubble of bubblesData) {
+        animationBufferCtx.globalCompositeOperation = bubble.composite;
+        animationBufferCtx.beginPath();
+        animationBufferCtx.arc(bubble.cx, bubble.cy, bubble.radius, 0, Math.PI * 2);
+
+        if (bubble.drawMode === 'filled') {
+            animationBufferCtx.fillStyle = bubble.color;
+            animationBufferCtx.fill();
+        } else {
+            animationBufferCtx.strokeStyle = bubble.color;
+            animationBufferCtx.lineWidth = bubble.strokeWidth;
+            animationBufferCtx.stroke();
+        }
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = lastBackgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(animationBuffer, 0, 0);
+
+    const now = performance.now();
+    if (now - lastFaviconUpdate > 1000) {
+        setFaviconFromCanvas(canvas);
+        lastFaviconUpdate = now;
+    }
+}
+
+function updatePositions(deltaSeconds) {
+    const canvas = document.getElementById('canvas');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    for (const bubble of bubblesData) {
+        if (!bubble.vx && !bubble.vy) continue;
+
+        bubble.cx += bubble.vx * deltaSeconds;
+        bubble.cy += bubble.vy * deltaSeconds;
+
+        if (bubble.cx - bubble.radius <= 0) {
+            bubble.cx = bubble.radius;
+            bubble.vx = Math.abs(bubble.vx);
+        } else if (bubble.cx + bubble.radius >= width) {
+            bubble.cx = width - bubble.radius;
+            bubble.vx = -Math.abs(bubble.vx);
+        }
+
+        if (bubble.cy - bubble.radius <= 0) {
+            bubble.cy = bubble.radius;
+            bubble.vy = Math.abs(bubble.vy);
+        } else if (bubble.cy + bubble.radius >= height) {
+            bubble.cy = height - bubble.radius;
+            bubble.vy = -Math.abs(bubble.vy);
+        }
+    }
+}
+
+function animateFrame(timestamp) {
+    if (!animationEnabled) return;
+
+    if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+    }
+
+    const deltaSeconds = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+    updatePositions(deltaSeconds);
+    renderFrame();
+
+    lastTimestamp = timestamp;
+    animationFrameId = requestAnimationFrame(animateFrame);
+}
+
+function startAnimation() {
+    if (animationFrameId || !animationEnabled) return;
+    lastTimestamp = 0;
+    animationFrameId = requestAnimationFrame(animateFrame);
+}
+
+function stopAnimation() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    lastTimestamp = 0;
+}
+
+function applySpeedToBubbles(speed) {
+    const safeSpeed = Math.max(0, speed || 0);
+    for (const bubble of bubblesData) {
+        const hasVelocity = bubble.vx || bubble.vy;
+        const angle = hasVelocity ? Math.atan2(bubble.vy, bubble.vx) : random() * Math.PI * 2;
+        bubble.vx = Math.cos(angle) * safeSpeed;
+        bubble.vy = Math.sin(angle) * safeSpeed;
+    }
+}
+
 function generateArt(seed = null) {
     // Set up seeded RNG
     currentSeed = seed !== null ? seed : generateSeed();
     seedRng(currentSeed);
 
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
 
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
@@ -108,20 +246,21 @@ function generateArt(seed = null) {
     const strokeWidth = parseFloat(document.getElementById('strokeWidth').value);
     const overlapMode = document.getElementById('overlapMode').value;
     const backgroundColor = document.getElementById('backgroundColor').value;
+    const animationSettings = getAnimationSettings();
 
     const colorScheme = getColorScheme();
 
     canvas.width = displayWidth;
     canvas.height = displayHeight;
 
-    const buffer = document.createElement('canvas');
-    buffer.width = displayWidth;
-    buffer.height = displayHeight;
-    const bufferCtx = buffer.getContext('2d');
+    ensureAnimationBuffer(displayWidth, displayHeight);
 
-    bufferCtx.globalCompositeOperation = 'source-over';
+    animationBufferCtx.globalCompositeOperation = 'source-over';
     bubblesData = [];
     let hasContent = false;
+    stopAnimation();
+    animationSpeed = animationSettings.speed;
+    animationEnabled = animationSettings.enabled && animationSpeed > 0;
 
     for (let i = 0; i < bubbleCount; i++) {
         const radius = randint(Math.floor(minRadius), Math.floor(maxRadius));
@@ -138,20 +277,10 @@ function generateArt(seed = null) {
             operation = 'normal';
         }
 
-        bufferCtx.globalCompositeOperation = composite;
-        bufferCtx.beginPath();
-        bufferCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-
-        if (drawMode === 'filled') {
-            bufferCtx.fillStyle = color;
-            bufferCtx.fill();
-        } else {
-            bufferCtx.strokeStyle = color;
-            bufferCtx.lineWidth = strokeWidth;
-            bufferCtx.stroke();
-        }
-
         hasContent = true;
+        const angle = random() * Math.PI * 2;
+        const vx = animationEnabled ? Math.cos(angle) * animationSpeed : 0;
+        const vy = animationEnabled ? Math.sin(angle) * animationSpeed : 0;
         bubblesData.push({
             cx,
             cy,
@@ -159,15 +288,19 @@ function generateArt(seed = null) {
             color,
             drawMode,
             strokeWidth,
-            operation
+            operation,
+            composite,
+            vx,
+            vy
         });
     }
 
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, displayWidth, displayHeight);
-    ctx.drawImage(buffer, 0, 0);
     lastBackgroundColor = backgroundColor;
+    renderFrame();
+
+    if (animationEnabled) {
+        startAnimation();
+    }
 }
 
 function downloadArt() {
@@ -235,6 +368,8 @@ function bindControls() {
     const downloadSvgButton = document.getElementById('downloadSvgButton');
     const shareButton = document.getElementById('shareButton');
     const colorInputs = document.getElementById('colorInputs');
+    const animateBubbles = document.getElementById('animateBubbles');
+    const bubbleSpeed = document.getElementById('bubbleSpeed');
 
     addColorButton.addEventListener('click', addColor);
     importColorsButton.addEventListener('click', openCoolorsModal);
@@ -260,6 +395,42 @@ function bindControls() {
     importAddButton.addEventListener('click', () => importCoolors('add'));
     importOverwriteButton.addEventListener('click', () => importCoolors('overwrite'));
 
+    animateBubbles.addEventListener('change', () => {
+        updateAnimationControlState();
+        const settings = getAnimationSettings();
+        animationSpeed = settings.speed;
+        animationEnabled = settings.enabled && animationSpeed > 0;
+
+        if (settings.enabled) {
+            applySpeedToBubbles(animationSpeed);
+            if (animationEnabled) {
+                startAnimation();
+            } else {
+                stopAnimation();
+                renderFrame();
+            }
+        } else {
+            animationEnabled = false;
+            stopAnimation();
+            renderFrame();
+        }
+    });
+
+    bubbleSpeed.addEventListener('input', () => {
+        if (!animateBubbles.checked) return;
+        const settings = getAnimationSettings();
+        animationSpeed = settings.speed;
+        animationEnabled = settings.enabled && animationSpeed > 0;
+
+        applySpeedToBubbles(animationSpeed);
+        if (animationEnabled) {
+            startAnimation();
+        } else {
+            stopAnimation();
+            renderFrame();
+        }
+    });
+
     window.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && coolorsModal.classList.contains('active')) {
             closeCoolorsModal();
@@ -273,6 +444,7 @@ window.addEventListener('load', () => {
     // Check for URL params and restore state
     const params = new URLSearchParams(window.location.search);
     const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
+    updateAnimationControlState();
 
     if (hasSeed && params.has('seed')) {
         generateArt(parseInt(params.get('seed')));

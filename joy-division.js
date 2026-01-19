@@ -318,6 +318,8 @@ function generateArt(seed = null) {
             strokeWidth: settings.lineWeight
         });
     }
+
+    setFaviconFromCanvas(canvas);
 }
 
 function downloadArt() {

@@ -197,6 +197,7 @@ function generateArt(seed = null) {
 
     // Reset alpha
     ctx.globalAlpha = 1.0;
+    setFaviconFromCanvas(canvas);
 }
 
 function downloadArt() {
