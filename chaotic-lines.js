@@ -1,16 +1,28 @@
 // Store line data for SVG export
 let linesData = [];
 let lastBackgroundColor = '#232634';
+let currentSeed = null;
 
-function addColor() {
-    const colorInputs = document.getElementById('colorInputs');
+// Form input IDs for serialization
+const FORM_INPUT_IDS = [
+    'displayWidth', 'displayHeight', 'xGridCount', 'yGridCount', 'linesPerGrid',
+    'gridGap', 'lineOrientation', 'useFocalPoint', 'focalPointX', 'focalPointY',
+    'backgroundColor'
+];
+
+function createColorInputGroup(colorValue) {
     const newColorGroup = document.createElement('div');
     newColorGroup.className = 'color-input-group';
     newColorGroup.innerHTML = `
-        <input type="color" value="${getRandomHexColor()}">
+        <input type="color" value="${colorValue}">
         <button type="button" class="remove-color">Remove</button>
     `;
-    colorInputs.appendChild(newColorGroup);
+    return newColorGroup;
+}
+
+function addColor(colorValue = getRandomHexColor()) {
+    const colorInputs = document.getElementById('colorInputs');
+    colorInputs.appendChild(createColorInputGroup(colorValue));
 }
 
 function removeColor(button) {
@@ -22,7 +34,47 @@ function removeColor(button) {
     }
 }
 
-function generateArt() {
+function setColors(colors, mode) {
+    const colorInputs = document.getElementById('colorInputs');
+    if (mode === 'overwrite') {
+        colorInputs.innerHTML = '';
+    }
+    colors.forEach(color => colorInputs.appendChild(createColorInputGroup(color)));
+}
+
+function openCoolorsModal() {
+    const modal = document.getElementById('coolorsModal');
+    const input = document.getElementById('coolorsImportUrl');
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    input.value = '';
+    input.focus();
+}
+
+function closeCoolorsModal() {
+    const modal = document.getElementById('coolorsModal');
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+function importCoolors(mode) {
+    const input = document.getElementById('coolorsImportUrl');
+    const colors = parseColorsFromUrl(input.value);
+
+    if (!colors) {
+        alert('Please enter a valid Coolors palette URL.');
+        return;
+    }
+
+    setColors(colors, mode);
+    closeCoolorsModal();
+}
+
+function generateArt(seed = null) {
+    // Set up seeded RNG
+    currentSeed = seed !== null ? seed : generateSeed();
+    seedRng(currentSeed);
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -120,7 +172,7 @@ function generateArt() {
                 }
 
                 const lineWidth = randint(minLineWidth, maxLineWidth);
-                const opacity = Math.random();
+                const opacity = random();
 
                 ctx.beginPath();
                 ctx.moveTo(xStart, yStart);
@@ -184,26 +236,77 @@ function downloadSVG() {
     URL.revokeObjectURL(link.href);
 }
 
+function shareArt() {
+    const params = serializeFormToParams(FORM_INPUT_IDS);
+    params.set('seed', currentSeed);
+
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+
+    copyToClipboard(url).then(() => {
+        const feedback = document.getElementById('shareFeedback');
+        feedback.textContent = 'Link copied!';
+        feedback.classList.add('visible');
+        setTimeout(() => {
+            feedback.classList.remove('visible');
+        }, 2000);
+    });
+}
+
 function bindControls() {
     const colorInputs = document.getElementById('colorInputs');
     const addColorButton = document.getElementById('addColorButton');
+    const importColorsButton = document.getElementById('importColorsButton');
+    const coolorsModal = document.getElementById('coolorsModal');
+    const coolorsModalClose = document.getElementById('coolorsModalClose');
+    const importCancelButton = document.getElementById('importCancelButton');
+    const importAddButton = document.getElementById('importAddButton');
+    const importOverwriteButton = document.getElementById('importOverwriteButton');
     const generateButton = document.getElementById('generateButton');
     const downloadPngButton = document.getElementById('downloadPngButton');
     const downloadSvgButton = document.getElementById('downloadSvgButton');
+    const shareButton = document.getElementById('shareButton');
 
     addColorButton.addEventListener('click', addColor);
-    generateButton.addEventListener('click', generateArt);
+    importColorsButton.addEventListener('click', openCoolorsModal);
+    generateButton.addEventListener('click', () => generateArt());
     downloadPngButton.addEventListener('click', downloadArt);
     downloadSvgButton.addEventListener('click', downloadSVG);
+    shareButton.addEventListener('click', shareArt);
 
     colorInputs.addEventListener('click', (event) => {
         if (event.target.classList.contains('remove-color')) {
             removeColor(event.target);
         }
     });
+
+    coolorsModal.addEventListener('click', (event) => {
+        if (event.target === coolorsModal) {
+            closeCoolorsModal();
+        }
+    });
+
+    coolorsModalClose.addEventListener('click', closeCoolorsModal);
+    importCancelButton.addEventListener('click', closeCoolorsModal);
+    importAddButton.addEventListener('click', () => importCoolors('add'));
+    importOverwriteButton.addEventListener('click', () => importCoolors('overwrite'));
+
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && coolorsModal.classList.contains('active')) {
+            closeCoolorsModal();
+        }
+    });
 }
 
 window.addEventListener('load', () => {
     bindControls();
-    generateArt();
+
+    // Check for URL params and restore state
+    const params = new URLSearchParams(window.location.search);
+    const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
+
+    if (hasSeed && params.has('seed')) {
+        generateArt(parseInt(params.get('seed')));
+    } else {
+        generateArt();
+    }
 });

@@ -9,7 +9,10 @@
 <body>
     <div class="container">
         <div class="generator-container">
-            <a href="index.html" class="back-button">← Back to Gallery</a>
+            <div class="page-actions">
+                <a href="index.html" class="back-button">← Back to Gallery</a>
+                <button type="button" class="theme-toggle" data-theme-toggle>Theme: System</button>
+            </div>
 
             <div class="generator-header">
                 <h1>Code Rain Generator</h1>
@@ -20,13 +23,13 @@
                 <div class="grid-layout">
                     <div class="control-group">
                         <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1200" min="100" max="4000">
+                        <input type="number" id="displayWidth" value="1920" min="100" max="4000">
                         <small>Width of the canvas in pixels</small>
                     </div>
 
                     <div class="control-group">
                         <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="700" min="100" max="4000">
+                        <input type="number" id="displayHeight" value="1080" min="100" max="4000">
                         <small>Height of the canvas in pixels</small>
                     </div>
 
@@ -74,12 +77,6 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="coolorsUrl">Coolors.co Palette URL (optional)</label>
-                    <input type="text" id="coolorsUrl" placeholder="https://coolors.co/palette/6dff7a-3ddc84-00b894-00cec9-00a8ff">
-                    <small>Paste a Coolors.co URL to use that color scheme</small>
-                </div>
-
-                <div class="control-group">
                     <label>Custom Color Scheme</label>
                     <div id="colorInputs" class="color-inputs">
                         <div class="color-input-group">
@@ -99,19 +96,51 @@
                             <button type="button" class="remove-color">Remove</button>
                         </div>
                     </div>
-                    <button type="button" class="add-color" id="addColorButton" style="margin-top: 0.5rem;">Add Color</button>
+                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                    </div>
                     <small>Colors used when palette mode is selected</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="exportDuration">Export Duration (seconds)</label>
+                    <input type="number" id="exportDuration" value="5" min="1" max="20" step="1">
+                    <small>Used for GIF or video exports</small>
                 </div>
 
                 <div class="button-group">
                     <button id="generateButton">Generate</button>
                     <button class="secondary" id="toggleButton">Stop</button>
                     <button class="secondary" id="downloadPngButton">Download PNG</button>
+                    <button class="secondary" id="downloadGifButton">Download GIF</button>
+                    <button class="secondary" id="recordWebmButton">Record WebM</button>
+                    <button class="secondary" id="shareButton">Share</button>
+                    <span id="shareFeedback" class="share-feedback"></span>
                 </div>
             </div>
 
             <div class="canvas-container">
                 <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="coolorsModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="coolorsModalTitle">
+            <div class="modal-header">
+                <h2 id="coolorsModalTitle">Import from Coolors</h2>
+                <button type="button" class="modal-close" id="coolorsModalClose">Close</button>
+            </div>
+            <div class="modal-body">
+                <label for="coolorsImportUrl">Coolors.co Palette URL</label>
+                <input type="text" id="coolorsImportUrl" placeholder="https://coolors.co/palette/6dff7a-3ddc84-00b894-00cec9-00a8ff">
+                <small>Paste a Coolors.co URL to import its colors</small>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="importCancelButton">Cancel</button>
+                <button type="button" id="importAddButton">Add to Colors</button>
+                <button type="button" class="add-color" id="importOverwriteButton">Overwrite Colors</button>
             </div>
         </div>
     </div>

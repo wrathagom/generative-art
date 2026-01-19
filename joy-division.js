@@ -1,12 +1,25 @@
-function addColor() {
-    const colorInputs = document.getElementById('colorInputs');
+let currentSeed = null;
+
+// Form input IDs for serialization (for random color mode)
+const FORM_INPUT_IDS = [
+    'displayWidth', 'displayHeight', 'numberLines', 'numberSegments',
+    'maxRandomHeight', 'lineWeight', 'bezierWeight', 'weightDirection',
+    'backgroundColor', 'lineColor', 'fillLines', 'colorMode'
+];
+
+function createColorInputGroup(colorValue) {
     const newColorGroup = document.createElement('div');
     newColorGroup.className = 'color-input-group';
     newColorGroup.innerHTML = `
-        <input type="color" value="${getRandomHexColor()}">
+        <input type="color" value="${colorValue}">
         <button type="button" class="remove-color">Remove</button>
     `;
-    colorInputs.appendChild(newColorGroup);
+    return newColorGroup;
+}
+
+function addColor(colorValue = getRandomHexColor()) {
+    const colorInputs = document.getElementById('colorInputs');
+    colorInputs.appendChild(createColorInputGroup(colorValue));
 }
 
 function removeColor(button) {
@@ -16,6 +29,42 @@ function removeColor(button) {
     } else {
         alert('You must have at least one color!');
     }
+}
+
+function setColors(colors, mode) {
+    const colorInputs = document.getElementById('colorInputs');
+    if (mode === 'overwrite') {
+        colorInputs.innerHTML = '';
+    }
+    colors.forEach(color => colorInputs.appendChild(createColorInputGroup(color)));
+}
+
+function openCoolorsModal() {
+    const modal = document.getElementById('coolorsModal');
+    const input = document.getElementById('coolorsImportUrl');
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    input.value = '';
+    input.focus();
+}
+
+function closeCoolorsModal() {
+    const modal = document.getElementById('coolorsModal');
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+function importCoolors(mode) {
+    const input = document.getElementById('coolorsImportUrl');
+    const colors = parseColorsFromUrl(input.value);
+
+    if (!colors) {
+        alert('Please enter a valid Coolors palette URL.');
+        return;
+    }
+
+    setColors(colors, mode);
+    closeCoolorsModal();
 }
 
 function addZone() {
@@ -141,7 +190,11 @@ function getSettingsForLine(lineIndex, totalLines) {
 // Store path data for SVG export
 let pathsData = [];
 
-function generateArt() {
+function generateArt(seed = null) {
+    // Set up seeded RNG
+    currentSeed = seed !== null ? seed : generateSeed();
+    seedRng(currentSeed);
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -318,21 +371,129 @@ function downloadSVG() {
     URL.revokeObjectURL(link.href);
 }
 
+// Serialize zones to base64-encoded JSON
+function serializeZones() {
+    const zoneCards = document.querySelectorAll('.zone-card');
+    const zones = Array.from(zoneCards).map(card => ({
+        name: card.querySelector('.zone-name').value,
+        percentage: parseInt(card.querySelector('.zone-percentage').value),
+        fillColor: card.querySelector('.zone-color').value,
+        lineColor: card.querySelector('.zone-line-color').value,
+        segments: parseInt(card.querySelector('.zone-segments').value),
+        waveHeight: parseInt(card.querySelector('.zone-wave-height').value),
+        lineWeight: parseInt(card.querySelector('.zone-line-weight').value),
+        bezierWeight: parseFloat(card.querySelector('.zone-bezier-weight').value),
+        wavePattern: card.querySelector('.zone-wave-pattern').value
+    }));
+    return btoa(JSON.stringify(zones));
+}
+
+// Deserialize zones from base64-encoded JSON
+function deserializeZones(encoded) {
+    try {
+        const zones = JSON.parse(atob(encoded));
+        const zoneInputs = document.getElementById('zoneInputs');
+        zoneInputs.innerHTML = '';
+
+        for (const zone of zones) {
+            const newZoneCard = document.createElement('div');
+            newZoneCard.className = 'zone-card';
+            newZoneCard.innerHTML = `
+                <div class="zone-header">
+                    <input type="text" class="zone-name" value="${zone.name}" placeholder="Zone name">
+                    <input type="number" class="zone-percentage" value="${zone.percentage}" min="1" max="100" title="Percentage of lines">
+                    <span class="percentage-label">%</span>
+                    <button type="button" class="zone-remove">Remove</button>
+                </div>
+                <div class="zone-settings">
+                    <div class="zone-setting-row">
+                        <label>Fill Color</label>
+                        <input type="color" class="zone-color" value="${zone.fillColor}">
+                    </div>
+                    <div class="zone-setting-row">
+                        <label>Line Color</label>
+                        <input type="color" class="zone-line-color" value="${zone.lineColor}">
+                    </div>
+                    <div class="zone-setting-row">
+                        <label>Segments</label>
+                        <input type="number" class="zone-segments" value="${zone.segments}" min="10" max="200">
+                    </div>
+                    <div class="zone-setting-row">
+                        <label>Wave Height</label>
+                        <input type="number" class="zone-wave-height" value="${zone.waveHeight}" min="1" max="50">
+                    </div>
+                    <div class="zone-setting-row">
+                        <label>Line Weight</label>
+                        <input type="number" class="zone-line-weight" value="${zone.lineWeight}" min="1" max="10">
+                    </div>
+                    <div class="zone-setting-row">
+                        <label>Bezier Weight</label>
+                        <input type="number" class="zone-bezier-weight" value="${zone.bezierWeight}" min="1" max="10" step="0.5">
+                    </div>
+                    <div class="zone-setting-row">
+                        <label>Wave Pattern</label>
+                        <select class="zone-wave-pattern">
+                            <option value="random" ${zone.wavePattern === 'random' ? 'selected' : ''}>Random</option>
+                            <option value="center" ${zone.wavePattern === 'center' ? 'selected' : ''}>Center</option>
+                            <option value="left" ${zone.wavePattern === 'left' ? 'selected' : ''}>Left</option>
+                            <option value="right" ${zone.wavePattern === 'right' ? 'selected' : ''}>Right</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            zoneInputs.appendChild(newZoneCard);
+        }
+    } catch (e) {
+        console.error('Error deserializing zones:', e);
+    }
+}
+
+function shareArt() {
+    const params = serializeFormToParams(FORM_INPUT_IDS);
+    params.set('seed', currentSeed);
+
+    // Add zone data if in zones mode
+    const colorMode = document.getElementById('colorMode').value;
+    if (colorMode === 'zones') {
+        params.set('zones', serializeZones());
+    }
+
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+
+    copyToClipboard(url).then(() => {
+        const feedback = document.getElementById('shareFeedback');
+        feedback.textContent = 'Link copied!';
+        feedback.classList.add('visible');
+        setTimeout(() => {
+            feedback.classList.remove('visible');
+        }, 2000);
+    });
+}
+
 function bindControls() {
     const addColorButton = document.getElementById('addColorButton');
+    const importColorsButton = document.getElementById('importColorsButton');
+    const coolorsModal = document.getElementById('coolorsModal');
+    const coolorsModalClose = document.getElementById('coolorsModalClose');
+    const importCancelButton = document.getElementById('importCancelButton');
+    const importAddButton = document.getElementById('importAddButton');
+    const importOverwriteButton = document.getElementById('importOverwriteButton');
     const addZoneButton = document.getElementById('addZoneButton');
     const generateButton = document.getElementById('generateButton');
     const downloadPngButton = document.getElementById('downloadPngButton');
     const downloadSvgButton = document.getElementById('downloadSvgButton');
+    const shareButton = document.getElementById('shareButton');
     const colorInputs = document.getElementById('colorInputs');
     const zoneInputs = document.getElementById('zoneInputs');
     const colorModeSelect = document.getElementById('colorMode');
 
     addColorButton.addEventListener('click', addColor);
+    importColorsButton.addEventListener('click', openCoolorsModal);
     addZoneButton.addEventListener('click', addZone);
-    generateButton.addEventListener('click', generateArt);
+    generateButton.addEventListener('click', () => generateArt());
     downloadPngButton.addEventListener('click', downloadArt);
     downloadSvgButton.addEventListener('click', downloadSVG);
+    shareButton.addEventListener('click', shareArt);
     colorModeSelect.addEventListener('change', toggleColorMode);
 
     colorInputs.addEventListener('click', (event) => {
@@ -341,9 +502,26 @@ function bindControls() {
         }
     });
 
+    coolorsModal.addEventListener('click', (event) => {
+        if (event.target === coolorsModal) {
+            closeCoolorsModal();
+        }
+    });
+
+    coolorsModalClose.addEventListener('click', closeCoolorsModal);
+    importCancelButton.addEventListener('click', closeCoolorsModal);
+    importAddButton.addEventListener('click', () => importCoolors('add'));
+    importOverwriteButton.addEventListener('click', () => importCoolors('overwrite'));
+
     zoneInputs.addEventListener('click', (event) => {
         if (event.target.classList.contains('zone-remove')) {
             removeZone(event.target);
+        }
+    });
+
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && coolorsModal.classList.contains('active')) {
+            closeCoolorsModal();
         }
     });
 }
@@ -368,8 +546,24 @@ fillLinesToggle.addEventListener('change', function() {
 
 window.addEventListener('load', () => {
     bindControls();
+
+    // Check for URL params and restore state
+    const params = new URLSearchParams(window.location.search);
+    const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
+
+    // Restore zones if present
+    if (params.has('zones')) {
+        deserializeZones(params.get('zones'));
+    }
+
+    // Update visibility of color controls
     if (fillLinesToggle.checked) {
         toggleColorMode();
     }
-    generateArt();
+
+    if (hasSeed && params.has('seed')) {
+        generateArt(parseInt(params.get('seed')));
+    } else {
+        generateArt();
+    }
 });

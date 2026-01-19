@@ -18,3 +18,5 @@ Open `index.html` in a browser and pick a generator card.
 
 - SVG exports match the last generated canvas output.
 - All pages are static HTML, CSS, and vanilla JavaScript.
+- Code Rain supports GIF/WebM export (GIF uses a vendored library; see `THIRD_PARTY_NOTICES.md`).
+- Third-party notices are listed in `THIRD_PARTY_NOTICES.md`.

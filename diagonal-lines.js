@@ -1,13 +1,16 @@
-// Utility functions
-function randint(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 // Store the tracking grid and line data for SVG export
 let trackingGrid = [];
 let linesData = [];
 let diamondsData = [];
 let pathData = [];
+let currentSeed = null;
+
+// Form input IDs for serialization
+const FORM_INPUT_IDS = [
+    'displayWidth', 'displayHeight', 'gridSize', 'strokeWidth', 'fillSquares',
+    'showPathfinders', 'pathfinderMode', 'pathfinderColor', 'pathfinderStyle',
+    'pathfinderWidth', 'pathfinderMinLength'
+];
 
 function triangleForSide(orientation, side) {
     if (orientation === 0) {
@@ -207,7 +210,11 @@ function drawPaths(ctx, paths, color, width, gridSize, yGridCount, style) {
     }
 }
 
-function generateArt() {
+function generateArt(seed = null) {
+    // Set up seeded RNG
+    currentSeed = seed !== null ? seed : generateSeed();
+    seedRng(currentSeed);
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -406,18 +413,45 @@ function downloadSVG() {
     URL.revokeObjectURL(link.href);
 }
 
+function shareArt() {
+    const params = serializeFormToParams(FORM_INPUT_IDS);
+    params.set('seed', currentSeed);
+
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+
+    copyToClipboard(url).then(() => {
+        const feedback = document.getElementById('shareFeedback');
+        feedback.textContent = 'Link copied!';
+        feedback.classList.add('visible');
+        setTimeout(() => {
+            feedback.classList.remove('visible');
+        }, 2000);
+    });
+}
+
 // Generate on page load
 function bindControls() {
     const generateButton = document.getElementById('generateButton');
     const downloadPngButton = document.getElementById('downloadPngButton');
     const downloadSvgButton = document.getElementById('downloadSvgButton');
+    const shareButton = document.getElementById('shareButton');
 
-    generateButton.addEventListener('click', generateArt);
+    generateButton.addEventListener('click', () => generateArt());
     downloadPngButton.addEventListener('click', downloadArt);
     downloadSvgButton.addEventListener('click', downloadSVG);
+    shareButton.addEventListener('click', shareArt);
 }
 
 window.addEventListener('load', () => {
     bindControls();
-    generateArt();
+
+    // Check for URL params and restore state
+    const params = new URLSearchParams(window.location.search);
+    const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
+
+    if (hasSeed && params.has('seed')) {
+        generateArt(parseInt(params.get('seed')));
+    } else {
+        generateArt();
+    }
 });

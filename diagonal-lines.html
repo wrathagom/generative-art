@@ -9,7 +9,10 @@
 <body>
     <div class="container">
         <div class="generator-container">
-            <a href="index.html" class="back-button">← Back to Gallery</a>
+            <div class="page-actions">
+                <a href="index.html" class="back-button">← Back to Gallery</a>
+                <button type="button" class="theme-toggle" data-theme-toggle>Theme: System</button>
+            </div>
 
             <div class="generator-header">
                 <h1>Diagonal Lines Generator</h1>
@@ -20,13 +23,13 @@
                 <div class="grid-layout">
                     <div class="control-group">
                         <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="500" min="100" max="2000">
+                        <input type="number" id="displayWidth" value="1920" min="100" max="2000">
                         <small>Width of the canvas in pixels</small>
                     </div>
 
                     <div class="control-group">
                         <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="500" min="100" max="2000">
+                        <input type="number" id="displayHeight" value="1080" min="100" max="2000">
                         <small>Height of the canvas in pixels</small>
                     </div>
 
@@ -101,6 +104,8 @@
                     <button id="generateButton">Generate Art</button>
                     <button class="secondary" id="downloadPngButton">Download PNG</button>
                     <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                    <button class="secondary" id="shareButton">Share</button>
+                    <span id="shareFeedback" class="share-feedback"></span>
                 </div>
             </div>
 
@@ -110,6 +115,7 @@
         </div>
     </div>
 
+    <script src="utils.js"></script>
     <script src="diagonal-lines.js"></script>
 </body>
 </html>
