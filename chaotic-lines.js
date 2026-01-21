@@ -6,9 +6,24 @@ let currentSeed = null;
 // Form input IDs for serialization
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'xGridCount', 'yGridCount', 'linesPerGrid',
-    'gridGap', 'lineOrientation', 'focalPointMode',
+    'gridGap', 'orientationMode', 'basketWeaveWidth', 'basketWeaveHeight',
     'focalPointX', 'focalPointY', 'backgroundColor'
 ];
+
+const FOCAL_MODES = new Set([
+    'radial',
+    'perpendicular',
+    'spiral',
+    'rings',
+    'swirl-bands',
+    'jitter',
+    'polar-snap',
+    'orbit-drift'
+]);
+
+function isFocalMode(mode) {
+    return FOCAL_MODES.has(mode);
+}
 
 function createColorInputGroup(colorValue) {
     const newColorGroup = document.createElement('div');
@@ -85,9 +100,10 @@ function generateArt(seed = null) {
     const yGridCount = parseInt(document.getElementById('yGridCount').value);
     const linesPerGrid = parseInt(document.getElementById('linesPerGrid').value);
     const gridGap = parseInt(document.getElementById('gridGap').value);
-    const lineOrientationMode = document.getElementById('lineOrientation').value;
-    const focalPointMode = document.getElementById('focalPointMode').value;
-    const useFocalPoint = focalPointMode !== 'none';
+    const orientationMode = document.getElementById('orientationMode').value;
+    const basketWeaveWidth = Math.max(1, parseInt(document.getElementById('basketWeaveWidth').value) || 1);
+    const basketWeaveHeight = Math.max(1, parseInt(document.getElementById('basketWeaveHeight').value) || 1);
+    const useFocalPoint = isFocalMode(orientationMode);
     const focalPointX = parseInt(document.getElementById('focalPointX').value);
     const focalPointY = parseInt(document.getElementById('focalPointY').value);
     const backgroundColor = document.getElementById('backgroundColor').value;
@@ -97,9 +113,9 @@ function generateArt(seed = null) {
 
     const colorScheme = getColorScheme();
 
-    const lineOrientations = lineOrientationMode === 'chaos'
+    const lineOrientations = orientationMode === 'chaos'
         ? ['horizontal', 'vertical', 'chaos']
-        : [lineOrientationMode];
+        : [orientationMode];
 
     // Set canvas size
     canvas.width = displayWidth;
@@ -118,10 +134,16 @@ function generateArt(seed = null) {
     const totalGapY = gridGap * (yGridCount - 1);
     const cellWidth = Math.max(1, (displayWidth - totalGapX) / xGridCount);
     const cellHeight = Math.max(1, (displayHeight - totalGapY) / yGridCount);
+    const maxRadius = Math.hypot(displayWidth, displayHeight);
 
     for (let xGrid = 0; xGrid < xGridCount; xGrid++) {
         for (let yGrid = 0; yGrid < yGridCount; yGrid++) {
-            const lineOrientation = lineOrientations[randint(0, lineOrientations.length - 1)];
+            let lineOrientation = lineOrientations[randint(0, lineOrientations.length - 1)];
+            if (orientationMode === 'basket-weave') {
+                const blockX = Math.floor(xGrid / basketWeaveWidth);
+                const blockY = Math.floor(yGrid / basketWeaveHeight);
+                lineOrientation = (blockX + blockY) % 2 === 0 ? 'horizontal' : 'vertical';
+            }
             const color = colorScheme[randint(0, colorScheme.length - 1)];
 
             for (let line = 0; line < linesPerGrid; line++) {
@@ -140,6 +162,7 @@ function generateArt(seed = null) {
                     const centerY = randint(yRangeMin, yRangeMax);
                     let dx = centerX - focalPointX;
                     let dy = centerY - focalPointY;
+                    const angle = Math.atan2(dy, dx);
                     const lengthBase = Math.min(xRangeMax - xRangeMin, yRangeMax - yRangeMin);
                     const minLength = Math.max(4, Math.floor(lengthBase * 0.4));
                     const maxLength = Math.max(8, Math.floor(lengthBase * 1.1));
@@ -156,17 +179,54 @@ function generateArt(seed = null) {
                     let dirX = ux;
                     let dirY = uy;
 
-                    if (focalPointMode === 'perpendicular') {
+                    if (orientationMode === 'perpendicular') {
                         const sign = random() < 0.5 ? -1 : 1;
                         dirX = -uy * sign;
                         dirY = ux * sign;
-                    } else if (focalPointMode === 'spiral') {
+                    } else if (orientationMode === 'spiral') {
                         const sign = random() < 0.5 ? -1 : 1;
                         const tx = -uy * sign;
                         const ty = ux * sign;
                         const spiralStrength = 0.8;
                         dirX = ux + tx * spiralStrength;
                         dirY = uy + ty * spiralStrength;
+                        const dirMag = Math.hypot(dirX, dirY) || 1;
+                        dirX /= dirMag;
+                        dirY /= dirMag;
+                    } else if (orientationMode === 'rings') {
+                        const bandSize = Math.max(cellWidth, cellHeight) * 1.1;
+                        const bandIndex = Math.floor(magnitude / bandSize);
+                        const sign = bandIndex % 2 === 0 ? 1 : -1;
+                        dirX = -uy * sign;
+                        dirY = ux * sign;
+                    } else if (orientationMode === 'swirl-bands') {
+                        const sign = (xGrid + yGrid) % 2 === 0 ? 1 : -1;
+                        const tx = -uy * sign;
+                        const ty = ux * sign;
+                        const spiralStrength = 0.9;
+                        dirX = ux + tx * spiralStrength;
+                        dirY = uy + ty * spiralStrength;
+                        const dirMag = Math.hypot(dirX, dirY) || 1;
+                        dirX /= dirMag;
+                        dirY /= dirMag;
+                    } else if (orientationMode === 'jitter') {
+                        const jitterScale = Math.min(1, magnitude / maxRadius);
+                        const maxJitter = Math.PI * 0.5 * jitterScale;
+                        const jitter = (random() * 2 - 1) * maxJitter;
+                        const jitterAngle = angle + jitter;
+                        dirX = Math.cos(jitterAngle);
+                        dirY = Math.sin(jitterAngle);
+                    } else if (orientationMode === 'polar-snap') {
+                        const spokes = 12;
+                        const step = (Math.PI * 2) / spokes;
+                        const snapped = Math.round(angle / step) * step;
+                        dirX = Math.cos(snapped);
+                        dirY = Math.sin(snapped);
+                    } else if (orientationMode === 'orbit-drift') {
+                        const sign = random() < 0.5 ? -1 : 1;
+                        const driftStrength = 0.35 + random() * 0.35;
+                        dirX = -uy * sign + ux * driftStrength;
+                        dirY = ux * sign + uy * driftStrength;
                         const dirMag = Math.hypot(dirX, dirY) || 1;
                         dirX /= dirMag;
                         dirY /= dirMag;
@@ -285,7 +345,7 @@ function bindControls() {
     const downloadPngButton = document.getElementById('downloadPngButton');
     const downloadSvgButton = document.getElementById('downloadSvgButton');
     const shareButton = document.getElementById('shareButton');
-    const focalPointMode = document.getElementById('focalPointMode');
+    const orientationMode = document.getElementById('orientationMode');
 
     addColorButton.addEventListener('click', addColor);
     importColorsButton.addEventListener('click', openCoolorsModal);
@@ -293,7 +353,7 @@ function bindControls() {
     downloadPngButton.addEventListener('click', downloadArt);
     downloadSvgButton.addEventListener('click', downloadSVG);
     shareButton.addEventListener('click', shareArt);
-    focalPointMode.addEventListener('change', updateFocalPointVisibility);
+    orientationMode.addEventListener('change', updateOrientationVisibility);
 
     colorInputs.addEventListener('click', (event) => {
         if (event.target.classList.contains('remove-color')) {
@@ -319,11 +379,12 @@ function bindControls() {
     });
 }
 
-function updateFocalPointVisibility() {
-    const focalPointMode = document.getElementById('focalPointMode').value;
+function updateOrientationVisibility() {
+    const mode = document.getElementById('orientationMode').value;
     const focalPointInputs = document.getElementById('focalPointInputs');
-    const showInputs = focalPointMode !== 'none';
-    focalPointInputs.classList.toggle('is-hidden', !showInputs);
+    const basketWeaveInputs = document.getElementById('basketWeaveInputs');
+    focalPointInputs.classList.toggle('is-hidden', !isFocalMode(mode));
+    basketWeaveInputs.classList.toggle('is-hidden', mode !== 'basket-weave');
 }
 
 window.addEventListener('load', () => {
@@ -332,7 +393,7 @@ window.addEventListener('load', () => {
     // Check for URL params and restore state
     const params = new URLSearchParams(window.location.search);
     const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
-    updateFocalPointVisibility();
+    updateOrientationVisibility();
 
     if (hasSeed && params.has('seed')) {
         generateArt(parseInt(params.get('seed')));

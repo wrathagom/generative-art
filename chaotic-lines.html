@@ -58,13 +58,36 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="lineOrientation">Line Orientation</label>
-                    <select id="lineOrientation">
+                    <label for="orientationMode">Line Orientation</label>
+                    <select id="orientationMode">
                         <option value="chaos">Chaos (Random)</option>
                         <option value="horizontal">Horizontal</option>
-                            <option value="vertical">Vertical</option>
-                        </select>
-                        <small>Direction of the lines</small>
+                        <option value="vertical">Vertical</option>
+                        <option value="basket-weave">Basket Weave</option>
+                        <option value="radial">Toward/Away (Radial)</option>
+                        <option value="perpendicular">Perpendicular</option>
+                        <option value="spiral">Spiral</option>
+                        <option value="rings">Concentric Rings</option>
+                        <option value="swirl-bands">Swirl Bands</option>
+                        <option value="jitter">Converge/Repel Jitter</option>
+                        <option value="polar-snap">Polar Snap</option>
+                        <option value="orbit-drift">Orbit Drift</option>
+                    </select>
+                    <small>Direction and structure of the lines</small>
+                </div>
+                </div>
+
+                <div class="grid-layout basket-weave-inputs is-hidden" id="basketWeaveInputs">
+                    <div class="control-group">
+                        <label for="basketWeaveWidth">Basket Weave Width (cells)</label>
+                        <input type="number" id="basketWeaveWidth" value="4" min="1" max="50">
+                        <small>Horizontal size of each weave block</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="basketWeaveHeight">Basket Weave Height (cells)</label>
+                        <input type="number" id="basketWeaveHeight" value="2" min="1" max="50">
+                        <small>Vertical size of each weave block</small>
                     </div>
                 </div>
 
@@ -72,17 +95,6 @@
                     <label for="backgroundColor">Background Color</label>
                     <input type="color" id="backgroundColor" value="#232634">
                     <small>Canvas background color</small>
-                </div>
-
-                <div class="control-group">
-                    <label for="focalPointMode">Focal Orientation</label>
-                    <select id="focalPointMode">
-                        <option value="none">None</option>
-                        <option value="radial">Toward/Away (Radial)</option>
-                        <option value="perpendicular">Perpendicular</option>
-                        <option value="spiral">Spiral</option>
-                    </select>
-                    <small>Align line direction relative to the focal point</small>
                 </div>
 
                 <div class="grid-layout focal-point-inputs is-hidden" id="focalPointInputs">
