@@ -6,8 +6,8 @@ let currentSeed = null;
 // Form input IDs for serialization
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'xGridCount', 'yGridCount', 'linesPerGrid',
-    'gridGap', 'lineOrientation', 'useFocalPoint', 'focalPointX', 'focalPointY',
-    'backgroundColor'
+    'gridGap', 'lineOrientation', 'focalPointMode',
+    'focalPointX', 'focalPointY', 'backgroundColor'
 ];
 
 function createColorInputGroup(colorValue) {
@@ -86,7 +86,8 @@ function generateArt(seed = null) {
     const linesPerGrid = parseInt(document.getElementById('linesPerGrid').value);
     const gridGap = parseInt(document.getElementById('gridGap').value);
     const lineOrientationMode = document.getElementById('lineOrientation').value;
-    const useFocalPoint = document.getElementById('useFocalPoint').checked;
+    const focalPointMode = document.getElementById('focalPointMode').value;
+    const useFocalPoint = focalPointMode !== 'none';
     const focalPointX = parseInt(document.getElementById('focalPointX').value);
     const focalPointY = parseInt(document.getElementById('focalPointY').value);
     const backgroundColor = document.getElementById('backgroundColor').value;
@@ -152,12 +153,30 @@ function generateArt(seed = null) {
                     const magnitude = Math.hypot(dx, dy) || 1;
                     const ux = dx / magnitude;
                     const uy = dy / magnitude;
+                    let dirX = ux;
+                    let dirY = uy;
+
+                    if (focalPointMode === 'perpendicular') {
+                        const sign = random() < 0.5 ? -1 : 1;
+                        dirX = -uy * sign;
+                        dirY = ux * sign;
+                    } else if (focalPointMode === 'spiral') {
+                        const sign = random() < 0.5 ? -1 : 1;
+                        const tx = -uy * sign;
+                        const ty = ux * sign;
+                        const spiralStrength = 0.8;
+                        dirX = ux + tx * spiralStrength;
+                        dirY = uy + ty * spiralStrength;
+                        const dirMag = Math.hypot(dirX, dirY) || 1;
+                        dirX /= dirMag;
+                        dirY /= dirMag;
+                    }
                     const half = length / 2;
 
-                    xStart = centerX - ux * half;
-                    yStart = centerY - uy * half;
-                    xEnd = centerX + ux * half;
-                    yEnd = centerY + uy * half;
+                    xStart = centerX - dirX * half;
+                    yStart = centerY - dirY * half;
+                    xEnd = centerX + dirX * half;
+                    yEnd = centerY + dirY * half;
 
                     xStart = Math.max(xRangeMin, Math.min(xRangeMax, xStart));
                     xEnd = Math.max(xRangeMin, Math.min(xRangeMax, xEnd));
@@ -266,6 +285,7 @@ function bindControls() {
     const downloadPngButton = document.getElementById('downloadPngButton');
     const downloadSvgButton = document.getElementById('downloadSvgButton');
     const shareButton = document.getElementById('shareButton');
+    const focalPointMode = document.getElementById('focalPointMode');
 
     addColorButton.addEventListener('click', addColor);
     importColorsButton.addEventListener('click', openCoolorsModal);
@@ -273,6 +293,7 @@ function bindControls() {
     downloadPngButton.addEventListener('click', downloadArt);
     downloadSvgButton.addEventListener('click', downloadSVG);
     shareButton.addEventListener('click', shareArt);
+    focalPointMode.addEventListener('change', updateFocalPointVisibility);
 
     colorInputs.addEventListener('click', (event) => {
         if (event.target.classList.contains('remove-color')) {
@@ -298,12 +319,20 @@ function bindControls() {
     });
 }
 
+function updateFocalPointVisibility() {
+    const focalPointMode = document.getElementById('focalPointMode').value;
+    const focalPointInputs = document.getElementById('focalPointInputs');
+    const showInputs = focalPointMode !== 'none';
+    focalPointInputs.classList.toggle('is-hidden', !showInputs);
+}
+
 window.addEventListener('load', () => {
     bindControls();
 
     // Check for URL params and restore state
     const params = new URLSearchParams(window.location.search);
     const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
+    updateFocalPointVisibility();
 
     if (hasSeed && params.has('seed')) {
         generateArt(parseInt(params.get('seed')));

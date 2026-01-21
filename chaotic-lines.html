@@ -75,14 +75,17 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="useFocalPoint">
-                        <input type="checkbox" id="useFocalPoint">
-                        Orient Lines Around Focal Point
-                    </label>
-                    <small>Align line direction toward a specific X/Y coordinate</small>
+                    <label for="focalPointMode">Focal Orientation</label>
+                    <select id="focalPointMode">
+                        <option value="none">None</option>
+                        <option value="radial">Toward/Away (Radial)</option>
+                        <option value="perpendicular">Perpendicular</option>
+                        <option value="spiral">Spiral</option>
+                    </select>
+                    <small>Align line direction relative to the focal point</small>
                 </div>
 
-                <div class="grid-layout">
+                <div class="grid-layout focal-point-inputs is-hidden" id="focalPointInputs">
                     <div class="control-group">
                         <label for="focalPointX">Focal X (px)</label>
                         <input type="number" id="focalPointX" value="960" min="0" max="4000">
