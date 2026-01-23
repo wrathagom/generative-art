@@ -9,7 +9,8 @@ let currentSeed = null;
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'gridSize', 'strokeWidth', 'fillSquares',
     'showPathfinders', 'pathfinderMode', 'pathfinderColor', 'pathfinderStyle',
-    'pathfinderWidth', 'pathfinderMinLength'
+    'pathfinderWidth', 'pathfinderMinLength', 'backgroundColor', 'lineColor',
+    'fillColor', 'lineJitter', 'lineGlow', 'lineBias'
 ];
 
 function triangleForSide(orientation, side) {
@@ -224,6 +225,13 @@ function generateArt(seed = null) {
     const gridSize = parseInt(document.getElementById('gridSize').value);
     const strokeWidth = parseInt(document.getElementById('strokeWidth').value);
     const fillSquares = document.getElementById('fillSquares').checked;
+    const backgroundColor = document.getElementById('backgroundColor').value;
+    const lineColor = document.getElementById('lineColor').value;
+    const fillColor = document.getElementById('fillColor').value;
+    const lineJitter = parseFloat(document.getElementById('lineJitter').value) || 0;
+    const lineGlow = parseFloat(document.getElementById('lineGlow').value) || 0;
+    const lineBias = parseFloat(document.getElementById('lineBias').value);
+    const slashProbability = Number.isFinite(lineBias) ? Math.min(Math.max(lineBias, 0), 100) / 100 : 0.5;
 
     // Set canvas size
     canvas.width = displayWidth;
@@ -239,8 +247,11 @@ function generateArt(seed = null) {
     diamondsData = [];
 
     // Draw background
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+    ctx.shadowColor = lineColor;
+    ctx.shadowBlur = lineGlow;
 
     // Generate diagonal lines
     for (let xGrid = 0; xGrid < xGridCount; xGrid++) {
@@ -250,33 +261,39 @@ function generateArt(seed = null) {
             const maxX = gridSize * (xGrid + 1) + (0.35 * strokeWidth);
             const maxY = gridSize * (yGrid + 1) + (0.35 * strokeWidth);
 
-            const orientation = randint(1, 2);
+            const orientation = random() < slashProbability ? 1 : 2;
+            const jitterX1 = (random() * 2 - 1) * lineJitter;
+            const jitterY1 = (random() * 2 - 1) * lineJitter;
+            const jitterX2 = (random() * 2 - 1) * lineJitter;
+            const jitterY2 = (random() * 2 - 1) * lineJitter;
 
             if (orientation === 1) {
                 // / (forward slash)
                 ctx.beginPath();
-                ctx.moveTo(minX, maxY);
-                ctx.lineTo(maxX, minY);
-                ctx.strokeStyle = 'black';
+                ctx.moveTo(minX + jitterX1, maxY + jitterY1);
+                ctx.lineTo(maxX + jitterX2, minY + jitterY2);
+                ctx.strokeStyle = lineColor;
                 ctx.lineWidth = strokeWidth;
                 ctx.stroke();
 
                 trackingGrid[xGrid][yGrid] = 0;
-                linesData.push({ x1: minX, y1: maxY, x2: maxX, y2: minY });
+                linesData.push({ x1: minX + jitterX1, y1: maxY + jitterY1, x2: maxX + jitterX2, y2: minY + jitterY2 });
             } else {
                 // \ (backslash)
                 ctx.beginPath();
-                ctx.moveTo(minX, minY);
-                ctx.lineTo(maxX, maxY);
-                ctx.strokeStyle = 'black';
+                ctx.moveTo(minX + jitterX1, minY + jitterY1);
+                ctx.lineTo(maxX + jitterX2, maxY + jitterY2);
+                ctx.strokeStyle = lineColor;
                 ctx.lineWidth = strokeWidth;
                 ctx.stroke();
 
                 trackingGrid[xGrid][yGrid] = 1;
-                linesData.push({ x1: minX, y1: minY, x2: maxX, y2: maxY });
+                linesData.push({ x1: minX + jitterX1, y1: minY + jitterY1, x2: maxX + jitterX2, y2: maxY + jitterY2 });
             }
         }
     }
+
+    ctx.shadowBlur = 0;
 
     // Fill diamond patterns if enabled
     if (fillSquares) {
@@ -305,9 +322,9 @@ function generateArt(seed = null) {
                     ctx.lineTo(points[2].x, points[2].y);
                     ctx.lineTo(points[3].x, points[3].y);
                     ctx.closePath();
-                    ctx.fillStyle = 'black';
+                    ctx.fillStyle = fillColor;
                     ctx.fill();
-                    ctx.strokeStyle = 'black';
+                    ctx.strokeStyle = lineColor;
                     ctx.stroke();
 
                     diamondsData.push(points);
@@ -319,6 +336,7 @@ function generateArt(seed = null) {
     // Generate pathfinders if enabled
     const showPathfinders = document.getElementById('showPathfinders').checked;
     if (showPathfinders) {
+        ctx.shadowBlur = 0;
         const pathfinderMode = document.getElementById('pathfinderMode').value;
         const pathfinderColor = document.getElementById('pathfinderColor').value;
         const pathfinderWidth = parseFloat(document.getElementById('pathfinderWidth').value);
@@ -362,22 +380,41 @@ function downloadSVG() {
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
     const strokeWidth = parseInt(document.getElementById('strokeWidth').value);
+    const backgroundColor = document.getElementById('backgroundColor').value;
+    const lineColor = document.getElementById('lineColor').value;
+    const fillColor = document.getElementById('fillColor').value;
+    const lineGlow = parseFloat(document.getElementById('lineGlow').value) || 0;
 
     // Build SVG
+    const hasGlow = lineGlow > 0;
+    const lineFilter = hasGlow ? ' filter="url(#line-glow)"' : '';
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">
-<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="#FFFFFF"/>
+<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${backgroundColor}"/>
 `;
+
+    if (hasGlow) {
+        svgContent += `<defs>
+<filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
+<feGaussianBlur stdDeviation="${lineGlow}" result="coloredBlur"/>
+<feMerge>
+<feMergeNode in="coloredBlur"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
+</defs>
+`;
+    }
 
     // Add lines
     for (const line of linesData) {
-        svgContent += `<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="black" stroke-width="${strokeWidth}" fill="none"/>\n`;
+        svgContent += `<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="${lineColor}" stroke-width="${strokeWidth}" fill="none"${lineFilter}/>\n`;
     }
 
     // Add diamonds
     for (const diamond of diamondsData) {
         const points = diamond.map(p => `${p.x},${p.y}`).join(' ');
-        svgContent += `<polygon points="${points}" fill="black" stroke="black"/>\n`;
+        svgContent += `<polygon points="${points}" fill="${fillColor}" stroke="${lineColor}"/>\n`;
     }
 
     // Add paths

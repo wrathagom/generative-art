@@ -1,10 +1,14 @@
 let pathsData = [];
 let lastBackgroundColor = '#0f172a';
 let currentSeed = null;
+let animationId = null;
+let animationState = null;
+let gifLibraryPromise = null;
 
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'particleCount', 'steps', 'stepSize',
-    'fieldScale', 'lineWidth', 'lineOpacity', 'backgroundColor'
+    'fieldScale', 'lineWidth', 'lineOpacity', 'backgroundColor',
+    'animationMode', 'animationSpeed', 'exportDuration'
 ];
 
 function createColorInputGroup(colorValue) {
@@ -67,31 +71,8 @@ function importCoolors(mode) {
     closeCoolorsModal();
 }
 
-function generateArt(seed = null) {
-    currentSeed = seed !== null ? seed : generateSeed();
-    seedRng(currentSeed);
-
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    const displayWidth = parseInt(document.getElementById('displayWidth').value);
-    const displayHeight = parseInt(document.getElementById('displayHeight').value);
-    const particleCount = parseInt(document.getElementById('particleCount').value);
-    const steps = parseInt(document.getElementById('steps').value);
-    const stepSize = parseFloat(document.getElementById('stepSize').value);
-    const fieldScale = parseFloat(document.getElementById('fieldScale').value);
-    const lineWidth = parseFloat(document.getElementById('lineWidth').value);
-    const lineOpacity = parseFloat(document.getElementById('lineOpacity').value);
-    const backgroundColor = document.getElementById('backgroundColor').value;
-
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, displayWidth, displayHeight);
-    lastBackgroundColor = backgroundColor;
-
-    const palette = getColorScheme();
+function calculatePaths(settings) {
+    const { displayWidth, displayHeight, particleCount, steps, stepSize, fieldScale, lineWidth, lineOpacity, palette } = settings;
 
     const offsetA = random() * Math.PI * 2;
     const offsetB = random() * Math.PI * 2;
@@ -104,12 +85,7 @@ function generateArt(seed = null) {
         return value * Math.PI;
     };
 
-    pathsData = [];
-
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = lineWidth;
-    ctx.globalAlpha = lineOpacity;
+    const paths = [];
 
     for (let i = 0; i < particleCount; i++) {
         let x = random() * displayWidth;
@@ -131,28 +107,285 @@ function generateArt(seed = null) {
             points.push({ x, y });
         }
 
-        if (points.length < 2) {
-            continue;
+        if (points.length >= 2) {
+            paths.push({
+                color,
+                lineWidth,
+                opacity: lineOpacity,
+                points
+            });
         }
-
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (let p = 1; p < points.length; p++) {
-            ctx.lineTo(points[p].x, points[p].y);
-        }
-        ctx.stroke();
-
-        pathsData.push({
-            color,
-            lineWidth,
-            opacity: lineOpacity,
-            points
-        });
     }
 
+    return paths;
+}
+
+function drawPath(ctx, path, endIndex = null) {
+    const points = path.points;
+    const end = endIndex !== null ? Math.min(endIndex, points.length) : points.length;
+
+    if (end < 2) return;
+
+    ctx.strokeStyle = path.color;
+    ctx.lineWidth = path.lineWidth;
+    ctx.globalAlpha = path.opacity;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let p = 1; p < end; p++) {
+        ctx.lineTo(points[p].x, points[p].y);
+    }
+    ctx.stroke();
+}
+
+function drawAllPaths(ctx, paths) {
+    for (const path of paths) {
+        drawPath(ctx, path);
+    }
     ctx.globalAlpha = 1;
-    setFaviconFromCanvas(canvas);
+}
+
+function stopAnimation() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    animationState = null;
+}
+
+function updateToggleButton() {
+    const toggleButton = document.getElementById('toggleButton');
+    const animationMode = document.getElementById('animationMode').value;
+
+    if (animationMode === 'none') {
+        toggleButton.style.display = 'none';
+    } else {
+        toggleButton.style.display = '';
+        toggleButton.textContent = animationId ? 'Pause' : 'Resume';
+    }
+}
+
+function toggleAnimation() {
+    if (animationId) {
+        stopAnimation();
+    } else if (animationState) {
+        resumeAnimation();
+    }
+    updateToggleButton();
+}
+
+function resumeAnimation() {
+    if (!animationState) return;
+
+    const { mode } = animationState;
+    if (mode === 'allGrow') {
+        animateAllGrow();
+    } else if (mode === 'sequential') {
+        animateSequential();
+    } else if (mode === 'staggered') {
+        animateStaggered();
+    }
+}
+
+function animateAllGrow() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const { paths, settings, maxSteps } = animationState;
+    const frameDelay = 1000 / settings.animationSpeed;
+    let lastFrameTime = 0;
+
+    function frame(timestamp) {
+        if (timestamp - lastFrameTime < frameDelay) {
+            animationId = requestAnimationFrame(frame);
+            return;
+        }
+        lastFrameTime = timestamp;
+
+        // Clear and redraw background
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = settings.backgroundColor;
+        ctx.fillRect(0, 0, settings.displayWidth, settings.displayHeight);
+
+        // Draw all paths up to current step
+        for (const path of paths) {
+            drawPath(ctx, path, animationState.currentStep + 1);
+        }
+
+        animationState.currentStep++;
+
+        if (animationState.currentStep >= maxSteps) {
+            // Animation complete - loop or stop
+            animationState.currentStep = 0;
+        }
+
+        setFaviconFromCanvas(canvas);
+        animationId = requestAnimationFrame(frame);
+    }
+
+    animationId = requestAnimationFrame(frame);
+}
+
+function animateSequential() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const { paths, settings } = animationState;
+    const frameDelay = 1000 / settings.animationSpeed;
+    let lastFrameTime = 0;
+
+    function frame(timestamp) {
+        if (timestamp - lastFrameTime < frameDelay) {
+            animationId = requestAnimationFrame(frame);
+            return;
+        }
+        lastFrameTime = timestamp;
+
+        const currentPath = paths[animationState.currentPathIndex];
+        drawPath(ctx, currentPath, animationState.currentStep + 1);
+
+        animationState.currentStep++;
+
+        if (animationState.currentStep >= currentPath.points.length) {
+            // Move to next path
+            animationState.currentPathIndex++;
+            animationState.currentStep = 0;
+
+            if (animationState.currentPathIndex >= paths.length) {
+                // Animation complete - reset for loop
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = settings.backgroundColor;
+                ctx.fillRect(0, 0, settings.displayWidth, settings.displayHeight);
+                animationState.currentPathIndex = 0;
+            }
+        }
+
+        setFaviconFromCanvas(canvas);
+        animationId = requestAnimationFrame(frame);
+    }
+
+    animationId = requestAnimationFrame(frame);
+}
+
+function animateStaggered() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const { paths, settings, staggerOffset } = animationState;
+    const frameDelay = 1000 / settings.animationSpeed;
+    let lastFrameTime = 0;
+
+    function frame(timestamp) {
+        if (timestamp - lastFrameTime < frameDelay) {
+            animationId = requestAnimationFrame(frame);
+            return;
+        }
+        lastFrameTime = timestamp;
+
+        // Clear and redraw background
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = settings.backgroundColor;
+        ctx.fillRect(0, 0, settings.displayWidth, settings.displayHeight);
+
+        // Draw each path with staggered progress
+        let allComplete = true;
+        for (let i = 0; i < paths.length; i++) {
+            const path = paths[i];
+            const pathStart = i * staggerOffset;
+            const pathStep = animationState.globalStep - pathStart;
+
+            if (pathStep > 0) {
+                const endIndex = Math.min(pathStep, path.points.length);
+                drawPath(ctx, path, endIndex);
+
+                if (endIndex < path.points.length) {
+                    allComplete = false;
+                }
+            } else {
+                allComplete = false;
+            }
+        }
+
+        animationState.globalStep++;
+
+        if (allComplete) {
+            // Reset for loop
+            animationState.globalStep = 0;
+        }
+
+        setFaviconFromCanvas(canvas);
+        animationId = requestAnimationFrame(frame);
+    }
+
+    animationId = requestAnimationFrame(frame);
+}
+
+function generateArt(seed = null) {
+    stopAnimation();
+
+    currentSeed = seed !== null ? seed : generateSeed();
+    seedRng(currentSeed);
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const displayWidth = parseInt(document.getElementById('displayWidth').value);
+    const displayHeight = parseInt(document.getElementById('displayHeight').value);
+    const particleCount = parseInt(document.getElementById('particleCount').value);
+    const steps = parseInt(document.getElementById('steps').value);
+    const stepSize = parseFloat(document.getElementById('stepSize').value);
+    const fieldScale = parseFloat(document.getElementById('fieldScale').value);
+    const lineWidth = parseFloat(document.getElementById('lineWidth').value);
+    const lineOpacity = parseFloat(document.getElementById('lineOpacity').value);
+    const backgroundColor = document.getElementById('backgroundColor').value;
+    const animationMode = document.getElementById('animationMode').value;
+    const animationSpeed = parseInt(document.getElementById('animationSpeed').value) || 30;
+
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, displayWidth, displayHeight);
+    lastBackgroundColor = backgroundColor;
+
+    const palette = getColorScheme();
+
+    const settings = {
+        displayWidth, displayHeight, particleCount, steps, stepSize,
+        fieldScale, lineWidth, lineOpacity, backgroundColor, animationSpeed, palette
+    };
+
+    pathsData = calculatePaths(settings);
+
+    if (animationMode === 'none') {
+        // Draw everything at once
+        drawAllPaths(ctx, pathsData);
+        ctx.globalAlpha = 1;
+        setFaviconFromCanvas(canvas);
+    } else {
+        // Set up animation state
+        const maxSteps = Math.max(...pathsData.map(p => p.points.length));
+
+        animationState = {
+            mode: animationMode,
+            paths: pathsData,
+            settings,
+            currentStep: 0,
+            currentPathIndex: 0,
+            globalStep: 0,
+            maxSteps,
+            staggerOffset: Math.max(1, Math.floor(maxSteps / pathsData.length * 3))
+        };
+
+        if (animationMode === 'allGrow') {
+            animateAllGrow();
+        } else if (animationMode === 'sequential') {
+            animateSequential();
+        } else if (animationMode === 'staggered') {
+            animateStaggered();
+        }
+    }
+
+    updateToggleButton();
 }
 
 function downloadArt() {
@@ -193,6 +426,183 @@ function downloadSVG() {
     URL.revokeObjectURL(link.href);
 }
 
+function getExportDurationMs() {
+    const input = document.getElementById('exportDuration');
+    const seconds = input ? parseFloat(input.value) : 5;
+    const clamped = Math.min(30, Math.max(1, isNaN(seconds) ? 5 : seconds));
+    return clamped * 1000;
+}
+
+function loadGifLibrary() {
+    if (window.GIF) {
+        return Promise.resolve();
+    }
+
+    if (!gifLibraryPromise) {
+        gifLibraryPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'vendor/gif.js';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load GIF library.'));
+            document.head.appendChild(script);
+        });
+    }
+
+    return gifLibraryPromise;
+}
+
+async function downloadGif() {
+    const animationMode = document.getElementById('animationMode').value;
+    if (animationMode === 'none') {
+        alert('Please select an animation mode to export a GIF.');
+        return;
+    }
+
+    const button = document.getElementById('downloadGifButton');
+    button.disabled = true;
+    button.textContent = 'Preparing GIF...';
+
+    try {
+        await loadGifLibrary();
+    } catch (error) {
+        alert('Could not load the GIF exporter. Please try again.');
+        button.disabled = false;
+        button.textContent = 'Download GIF';
+        return;
+    }
+
+    const canvas = document.getElementById('canvas');
+    const wasRunning = Boolean(animationId);
+    if (!wasRunning && animationState) {
+        resumeAnimation();
+    }
+
+    const durationMs = getExportDurationMs();
+    const fps = 10;
+    const frameDelay = Math.round(1000 / fps);
+    const totalFrames = Math.max(1, Math.floor(durationMs / frameDelay));
+
+    const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        workerScript: 'vendor/gif.worker.js',
+        width: canvas.width,
+        height: canvas.height
+    });
+
+    let captured = 0;
+    button.textContent = `Capturing 0/${totalFrames}`;
+
+    await new Promise((resolve) => {
+        const captureFrame = () => {
+            gif.addFrame(canvas, { copy: true, delay: frameDelay });
+            captured += 1;
+            button.textContent = `Capturing ${captured}/${totalFrames}`;
+
+            if (captured >= totalFrames) {
+                resolve();
+                return;
+            }
+
+            setTimeout(captureFrame, frameDelay);
+        };
+
+        captureFrame();
+    });
+
+    button.textContent = 'Rendering GIF...';
+
+    gif.on('finished', (blob) => {
+        const link = document.createElement('a');
+        link.download = 'flow-field-art.gif';
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+
+        button.disabled = false;
+        button.textContent = 'Download GIF';
+    });
+
+    gif.on('error', () => {
+        alert('GIF export failed. Please try again.');
+        button.disabled = false;
+        button.textContent = 'Download GIF';
+    });
+
+    gif.render();
+
+    if (!wasRunning) {
+        stopAnimation();
+        updateToggleButton();
+    }
+}
+
+function pickRecordingMimeType() {
+    const candidates = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm'
+    ];
+
+    return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
+}
+
+function recordWebm() {
+    const animationMode = document.getElementById('animationMode').value;
+    if (animationMode === 'none') {
+        alert('Please select an animation mode to record a video.');
+        return;
+    }
+
+    const button = document.getElementById('recordWebmButton');
+    button.disabled = true;
+    button.textContent = 'Recording...';
+
+    if (typeof MediaRecorder === 'undefined') {
+        alert('Video recording is not supported in this browser.');
+        button.disabled = false;
+        button.textContent = 'Record WebM';
+        return;
+    }
+
+    const canvas = document.getElementById('canvas');
+    const wasRunning = Boolean(animationId);
+    if (!wasRunning && animationState) {
+        resumeAnimation();
+    }
+
+    const stream = canvas.captureStream(30);
+    const mimeType = pickRecordingMimeType();
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    const chunks = [];
+
+    recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+            chunks.push(event.data);
+        }
+    };
+
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+        const link = document.createElement('a');
+        link.download = 'flow-field-art.webm';
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+
+        button.disabled = false;
+        button.textContent = 'Record WebM';
+
+        if (!wasRunning) {
+            stopAnimation();
+            updateToggleButton();
+        }
+    };
+
+    recorder.start();
+    setTimeout(() => recorder.stop(), getExportDurationMs());
+}
+
 function shareArt() {
     const params = serializeFormToParams(FORM_INPUT_IDS);
     params.set('seed', currentSeed);
@@ -219,15 +629,21 @@ function bindControls() {
     const importAddButton = document.getElementById('importAddButton');
     const importOverwriteButton = document.getElementById('importOverwriteButton');
     const generateButton = document.getElementById('generateButton');
+    const toggleButton = document.getElementById('toggleButton');
     const downloadPngButton = document.getElementById('downloadPngButton');
     const downloadSvgButton = document.getElementById('downloadSvgButton');
+    const downloadGifButton = document.getElementById('downloadGifButton');
+    const recordWebmButton = document.getElementById('recordWebmButton');
     const shareButton = document.getElementById('shareButton');
 
     addColorButton.addEventListener('click', addColor);
     importColorsButton.addEventListener('click', openCoolorsModal);
     generateButton.addEventListener('click', () => generateArt());
+    toggleButton.addEventListener('click', toggleAnimation);
     downloadPngButton.addEventListener('click', downloadArt);
     downloadSvgButton.addEventListener('click', downloadSVG);
+    downloadGifButton.addEventListener('click', downloadGif);
+    recordWebmButton.addEventListener('click', recordWebm);
     shareButton.addEventListener('click', shareArt);
 
     colorInputs.addEventListener('click', (event) => {
@@ -266,5 +682,5 @@ window.addEventListener('load', () => {
         generateArt();
     }
 
-    handleAutoDownload({ png: downloadArt, svg: downloadSVG });
+    handleAutoDownload({ png: downloadArt, svg: downloadSVG, gif: downloadGif, webm: recordWebm });
 });

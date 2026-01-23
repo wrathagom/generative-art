@@ -74,6 +74,29 @@
                         <input type="color" id="backgroundColor" value="#0f172a">
                         <small>Canvas background color</small>
                     </div>
+
+                    <div class="control-group">
+                        <label for="animationMode">Animation</label>
+                        <select id="animationMode">
+                            <option value="none">None</option>
+                            <option value="allGrow">All Paths Grow Together</option>
+                            <option value="sequential">Sequential Paths</option>
+                            <option value="staggered">Staggered Growth</option>
+                        </select>
+                        <small>How paths are drawn on canvas</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="animationSpeed">Animation Speed</label>
+                        <input type="number" id="animationSpeed" value="30" min="1" max="120">
+                        <small>Frames per second for animation</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="exportDuration">Export Duration (s)</label>
+                        <input type="number" id="exportDuration" value="5" min="1" max="30" step="1">
+                        <small>Duration for GIF/video export</small>
+                    </div>
                 </div>
 
                 <div class="control-group">
@@ -109,8 +132,11 @@
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>
+                    <button class="secondary" id="toggleButton" style="display: none;">Pause</button>
                     <button class="secondary" id="downloadPngButton">Download PNG</button>
                     <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                    <button class="secondary" id="downloadGifButton">Download GIF</button>
+                    <button class="secondary" id="recordWebmButton">Record WebM</button>
                     <button class="secondary" id="shareButton">Share</button>
                     <span id="shareFeedback" class="share-feedback"></span>
                 </div>
