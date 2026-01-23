@@ -3,7 +3,6 @@ let lastBackgroundColor = '#0f172a';
 let currentSeed = null;
 let animationId = null;
 let animationState = null;
-let gifLibraryPromise = null;
 
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'particleCount', 'steps', 'stepSize',
@@ -11,65 +10,9 @@ const FORM_INPUT_IDS = [
     'animationMode', 'animationSpeed', 'exportDuration'
 ];
 
-function createColorInputGroup(colorValue) {
-    const newColorGroup = document.createElement('div');
-    newColorGroup.className = 'color-input-group';
-    newColorGroup.innerHTML = `
-        <input type="color" value="${colorValue}">
-        <button type="button" class="remove-color">Remove</button>
-    `;
-    return newColorGroup;
-}
-
-function addColor(colorValue = getRandomHexColor()) {
-    const colorInputs = document.getElementById('colorInputs');
-    colorInputs.appendChild(createColorInputGroup(colorValue));
-}
-
-function removeColor(button) {
-    const colorInputs = document.getElementById('colorInputs');
-    if (colorInputs.children.length > 1) {
-        button.parentElement.remove();
-    } else {
-        alert('You must have at least one color!');
-    }
-}
-
-function setColors(colors, mode) {
-    const colorInputs = document.getElementById('colorInputs');
-    if (mode === 'overwrite') {
-        colorInputs.innerHTML = '';
-    }
-    colors.forEach(color => colorInputs.appendChild(createColorInputGroup(color)));
-}
-
-function openCoolorsModal() {
-    const modal = document.getElementById('coolorsModal');
-    const input = document.getElementById('coolorsImportUrl');
-    modal.classList.add('active');
-    modal.setAttribute('aria-hidden', 'false');
-    input.value = '';
-    input.focus();
-}
-
-function closeCoolorsModal() {
-    const modal = document.getElementById('coolorsModal');
-    modal.classList.remove('active');
-    modal.setAttribute('aria-hidden', 'true');
-}
-
-function importCoolors(mode) {
-    const input = document.getElementById('coolorsImportUrl');
-    const colors = parseColorsFromUrl(input.value);
-
-    if (!colors) {
-        alert('Please enter a valid Coolors palette URL.');
-        return;
-    }
-
-    setColors(colors, mode);
-    closeCoolorsModal();
-}
+// =============================================================================
+// PATH CALCULATION
+// =============================================================================
 
 function calculatePaths(settings) {
     const { displayWidth, displayHeight, particleCount, steps, stepSize, fieldScale, lineWidth, lineOpacity, palette } = settings;
@@ -120,6 +63,10 @@ function calculatePaths(settings) {
     return paths;
 }
 
+// =============================================================================
+// DRAWING
+// =============================================================================
+
 function drawPath(ctx, path, endIndex = null) {
     const points = path.points;
     const end = endIndex !== null ? Math.min(endIndex, points.length) : points.length;
@@ -147,11 +94,19 @@ function drawAllPaths(ctx, paths) {
     ctx.globalAlpha = 1;
 }
 
+// =============================================================================
+// ANIMATION
+// =============================================================================
+
 function stopAnimation() {
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = null;
     }
+}
+
+function resetAnimation() {
+    stopAnimation();
     animationState = null;
 }
 
@@ -163,7 +118,7 @@ function updateToggleButton() {
         toggleButton.style.display = 'none';
     } else {
         toggleButton.style.display = '';
-        toggleButton.textContent = animationId ? 'Pause' : 'Resume';
+        toggleButton.textContent = animationId ? 'Stop' : 'Start';
     }
 }
 
@@ -203,12 +158,10 @@ function animateAllGrow() {
         }
         lastFrameTime = timestamp;
 
-        // Clear and redraw background
         ctx.globalAlpha = 1;
         ctx.fillStyle = settings.backgroundColor;
         ctx.fillRect(0, 0, settings.displayWidth, settings.displayHeight);
 
-        // Draw all paths up to current step
         for (const path of paths) {
             drawPath(ctx, path, animationState.currentStep + 1);
         }
@@ -216,7 +169,6 @@ function animateAllGrow() {
         animationState.currentStep++;
 
         if (animationState.currentStep >= maxSteps) {
-            // Animation complete - loop or stop
             animationState.currentStep = 0;
         }
 
@@ -247,12 +199,10 @@ function animateSequential() {
         animationState.currentStep++;
 
         if (animationState.currentStep >= currentPath.points.length) {
-            // Move to next path
             animationState.currentPathIndex++;
             animationState.currentStep = 0;
 
             if (animationState.currentPathIndex >= paths.length) {
-                // Animation complete - reset for loop
                 ctx.globalAlpha = 1;
                 ctx.fillStyle = settings.backgroundColor;
                 ctx.fillRect(0, 0, settings.displayWidth, settings.displayHeight);
@@ -281,12 +231,10 @@ function animateStaggered() {
         }
         lastFrameTime = timestamp;
 
-        // Clear and redraw background
         ctx.globalAlpha = 1;
         ctx.fillStyle = settings.backgroundColor;
         ctx.fillRect(0, 0, settings.displayWidth, settings.displayHeight);
 
-        // Draw each path with staggered progress
         let allComplete = true;
         for (let i = 0; i < paths.length; i++) {
             const path = paths[i];
@@ -308,7 +256,6 @@ function animateStaggered() {
         animationState.globalStep++;
 
         if (allComplete) {
-            // Reset for loop
             animationState.globalStep = 0;
         }
 
@@ -319,8 +266,12 @@ function animateStaggered() {
     animationId = requestAnimationFrame(frame);
 }
 
+// =============================================================================
+// GENERATION
+// =============================================================================
+
 function generateArt(seed = null) {
-    stopAnimation();
+    resetAnimation();
 
     currentSeed = seed !== null ? seed : generateSeed();
     seedRng(currentSeed);
@@ -357,12 +308,10 @@ function generateArt(seed = null) {
     pathsData = calculatePaths(settings);
 
     if (animationMode === 'none') {
-        // Draw everything at once
         drawAllPaths(ctx, pathsData);
         ctx.globalAlpha = 1;
         setFaviconFromCanvas(canvas);
     } else {
-        // Set up animation state
         const maxSteps = Math.max(...pathsData.map(p => p.points.length));
 
         animationState = {
@@ -388,12 +337,13 @@ function generateArt(seed = null) {
     updateToggleButton();
 }
 
+// =============================================================================
+// EXPORT
+// =============================================================================
+
 function downloadArt() {
     const canvas = document.getElementById('canvas');
-    const link = document.createElement('a');
-    link.download = 'flow-field-art.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    downloadCanvasAsPng(canvas, 'flow-field-art.png');
 }
 
 function downloadSVG() {
@@ -417,38 +367,7 @@ function downloadSVG() {
     }
 
     svgContent += '</svg>';
-
-    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-    const link = document.createElement('a');
-    link.download = 'flow-field-art.svg';
-    link.href = URL.createObjectURL(blob);
-    link.click();
-    URL.revokeObjectURL(link.href);
-}
-
-function getExportDurationMs() {
-    const input = document.getElementById('exportDuration');
-    const seconds = input ? parseFloat(input.value) : 5;
-    const clamped = Math.min(30, Math.max(1, isNaN(seconds) ? 5 : seconds));
-    return clamped * 1000;
-}
-
-function loadGifLibrary() {
-    if (window.GIF) {
-        return Promise.resolve();
-    }
-
-    if (!gifLibraryPromise) {
-        gifLibraryPromise = new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'vendor/gif.js';
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('Failed to load GIF library.'));
-            document.head.appendChild(script);
-        });
-    }
-
-    return gifLibraryPromise;
+    downloadSvgContent(svgContent, 'flow-field-art.svg');
 }
 
 async function downloadGif() {
@@ -458,78 +377,16 @@ async function downloadGif() {
         return;
     }
 
-    const button = document.getElementById('downloadGifButton');
-    button.disabled = true;
-    button.textContent = 'Preparing GIF...';
-
-    try {
-        await loadGifLibrary();
-    } catch (error) {
-        alert('Could not load the GIF exporter. Please try again.');
-        button.disabled = false;
-        button.textContent = 'Download GIF';
-        return;
-    }
-
-    const canvas = document.getElementById('canvas');
     const wasRunning = Boolean(animationId);
     if (!wasRunning && animationState) {
         resumeAnimation();
     }
 
-    const durationMs = getExportDurationMs();
-    const fps = 10;
-    const frameDelay = Math.round(1000 / fps);
-    const totalFrames = Math.max(1, Math.floor(durationMs / frameDelay));
-
-    const gif = new GIF({
-        workers: 2,
-        quality: 10,
-        workerScript: 'vendor/gif.worker.js',
-        width: canvas.width,
-        height: canvas.height
+    await exportGif({
+        canvas: document.getElementById('canvas'),
+        filename: 'flow-field-art.gif',
+        buttonId: 'downloadGifButton'
     });
-
-    let captured = 0;
-    button.textContent = `Capturing 0/${totalFrames}`;
-
-    await new Promise((resolve) => {
-        const captureFrame = () => {
-            gif.addFrame(canvas, { copy: true, delay: frameDelay });
-            captured += 1;
-            button.textContent = `Capturing ${captured}/${totalFrames}`;
-
-            if (captured >= totalFrames) {
-                resolve();
-                return;
-            }
-
-            setTimeout(captureFrame, frameDelay);
-        };
-
-        captureFrame();
-    });
-
-    button.textContent = 'Rendering GIF...';
-
-    gif.on('finished', (blob) => {
-        const link = document.createElement('a');
-        link.download = 'flow-field-art.gif';
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-
-        button.disabled = false;
-        button.textContent = 'Download GIF';
-    });
-
-    gif.on('error', () => {
-        alert('GIF export failed. Please try again.');
-        button.disabled = false;
-        button.textContent = 'Download GIF';
-    });
-
-    gif.render();
 
     if (!wasRunning) {
         stopAnimation();
@@ -537,150 +394,54 @@ async function downloadGif() {
     }
 }
 
-function pickRecordingMimeType() {
-    const candidates = [
-        'video/webm;codecs=vp9',
-        'video/webm;codecs=vp8',
-        'video/webm'
-    ];
-
-    return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
-}
-
-function recordWebm() {
+function downloadWebm() {
     const animationMode = document.getElementById('animationMode').value;
     if (animationMode === 'none') {
         alert('Please select an animation mode to record a video.');
         return;
     }
 
-    const button = document.getElementById('recordWebmButton');
-    button.disabled = true;
-    button.textContent = 'Recording...';
-
-    if (typeof MediaRecorder === 'undefined') {
-        alert('Video recording is not supported in this browser.');
-        button.disabled = false;
-        button.textContent = 'Record WebM';
-        return;
-    }
-
-    const canvas = document.getElementById('canvas');
     const wasRunning = Boolean(animationId);
     if (!wasRunning && animationState) {
         resumeAnimation();
     }
 
-    const stream = canvas.captureStream(30);
-    const mimeType = pickRecordingMimeType();
-    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-    const chunks = [];
-
-    recorder.ondataavailable = (event) => {
-        if (event.data && event.data.size > 0) {
-            chunks.push(event.data);
+    recordWebm({
+        canvas: document.getElementById('canvas'),
+        filename: 'flow-field-art.webm',
+        buttonId: 'recordWebmButton',
+        onStop: () => {
+            if (!wasRunning) {
+                stopAnimation();
+                updateToggleButton();
+            }
         }
-    };
-
-    recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
-        const link = document.createElement('a');
-        link.download = 'flow-field-art.webm';
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-
-        button.disabled = false;
-        button.textContent = 'Record WebM';
-
-        if (!wasRunning) {
-            stopAnimation();
-            updateToggleButton();
-        }
-    };
-
-    recorder.start();
-    setTimeout(() => recorder.stop(), getExportDurationMs());
-}
-
-function shareArt() {
-    const params = serializeFormToParams(FORM_INPUT_IDS);
-    params.set('seed', currentSeed);
-
-    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-
-    copyToClipboard(url).then(() => {
-        const feedback = document.getElementById('shareFeedback');
-        feedback.textContent = 'Link copied!';
-        feedback.classList.add('visible');
-        setTimeout(() => {
-            feedback.classList.remove('visible');
-        }, 2000);
     });
 }
+
+function handleShare() {
+    shareArt(FORM_INPUT_IDS, currentSeed);
+}
+
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
 
 function bindControls() {
-    const colorInputs = document.getElementById('colorInputs');
-    const addColorButton = document.getElementById('addColorButton');
-    const importColorsButton = document.getElementById('importColorsButton');
-    const coolorsModal = document.getElementById('coolorsModal');
-    const coolorsModalClose = document.getElementById('coolorsModalClose');
-    const importCancelButton = document.getElementById('importCancelButton');
-    const importAddButton = document.getElementById('importAddButton');
-    const importOverwriteButton = document.getElementById('importOverwriteButton');
-    const generateButton = document.getElementById('generateButton');
-    const toggleButton = document.getElementById('toggleButton');
-    const downloadPngButton = document.getElementById('downloadPngButton');
-    const downloadSvgButton = document.getElementById('downloadSvgButton');
-    const downloadGifButton = document.getElementById('downloadGifButton');
-    const recordWebmButton = document.getElementById('recordWebmButton');
-    const shareButton = document.getElementById('shareButton');
-
-    addColorButton.addEventListener('click', addColor);
-    importColorsButton.addEventListener('click', openCoolorsModal);
-    generateButton.addEventListener('click', () => generateArt());
-    toggleButton.addEventListener('click', toggleAnimation);
-    downloadPngButton.addEventListener('click', downloadArt);
-    downloadSvgButton.addEventListener('click', downloadSVG);
-    downloadGifButton.addEventListener('click', downloadGif);
-    recordWebmButton.addEventListener('click', recordWebm);
-    shareButton.addEventListener('click', shareArt);
-
-    colorInputs.addEventListener('click', (event) => {
-        if (event.target.classList.contains('remove-color')) {
-            removeColor(event.target);
-        }
-    });
-
-    coolorsModal.addEventListener('click', (event) => {
-        if (event.target === coolorsModal) {
-            closeCoolorsModal();
-        }
-    });
-
-    coolorsModalClose.addEventListener('click', closeCoolorsModal);
-    importCancelButton.addEventListener('click', closeCoolorsModal);
-    importAddButton.addEventListener('click', () => importCoolors('add'));
-    importOverwriteButton.addEventListener('click', () => importCoolors('overwrite'));
-
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && coolorsModal.classList.contains('active')) {
-            closeCoolorsModal();
-        }
-    });
+    document.getElementById('generateButton').addEventListener('click', () => generateArt());
+    document.getElementById('toggleButton').addEventListener('click', toggleAnimation);
+    document.getElementById('downloadPngButton').addEventListener('click', downloadArt);
+    document.getElementById('downloadSvgButton').addEventListener('click', downloadSVG);
+    document.getElementById('downloadGifButton').addEventListener('click', downloadGif);
+    document.getElementById('recordWebmButton').addEventListener('click', downloadWebm);
+    document.getElementById('shareButton').addEventListener('click', handleShare);
 }
 
 window.addEventListener('load', () => {
-    bindControls();
-
-    const params = new URLSearchParams(window.location.search);
-    const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
-
-    if (hasSeed && params.has('seed')) {
-        generateArt(parseInt(params.get('seed')));
-    } else {
-        generateArt();
-    }
-
-    handleAutoDownload({ png: downloadArt, svg: downloadSVG, gif: downloadGif, webm: recordWebm });
+    initGenerator({
+        formInputIds: FORM_INPUT_IDS,
+        generateFn: generateArt,
+        downloadFns: { png: downloadArt, svg: downloadSVG, gif: downloadGif, webm: downloadWebm },
+        extraBindings: bindControls
+    });
 });

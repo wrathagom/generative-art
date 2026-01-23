@@ -1,71 +1,15 @@
 let currentSeed = null;
+let pathsData = [];
 
-// Form input IDs for serialization (for random color mode)
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'numberLines', 'numberSegments',
     'maxRandomHeight', 'lineWeight', 'bezierWeight', 'weightDirection',
     'backgroundColor', 'lineColor', 'fillLines', 'colorMode'
 ];
 
-function createColorInputGroup(colorValue) {
-    const newColorGroup = document.createElement('div');
-    newColorGroup.className = 'color-input-group';
-    newColorGroup.innerHTML = `
-        <input type="color" value="${colorValue}">
-        <button type="button" class="remove-color">Remove</button>
-    `;
-    return newColorGroup;
-}
-
-function addColor(colorValue = getRandomHexColor()) {
-    const colorInputs = document.getElementById('colorInputs');
-    colorInputs.appendChild(createColorInputGroup(colorValue));
-}
-
-function removeColor(button) {
-    const colorInputs = document.getElementById('colorInputs');
-    if (colorInputs.children.length > 1) {
-        button.parentElement.remove();
-    } else {
-        alert('You must have at least one color!');
-    }
-}
-
-function setColors(colors, mode) {
-    const colorInputs = document.getElementById('colorInputs');
-    if (mode === 'overwrite') {
-        colorInputs.innerHTML = '';
-    }
-    colors.forEach(color => colorInputs.appendChild(createColorInputGroup(color)));
-}
-
-function openCoolorsModal() {
-    const modal = document.getElementById('coolorsModal');
-    const input = document.getElementById('coolorsImportUrl');
-    modal.classList.add('active');
-    modal.setAttribute('aria-hidden', 'false');
-    input.value = '';
-    input.focus();
-}
-
-function closeCoolorsModal() {
-    const modal = document.getElementById('coolorsModal');
-    modal.classList.remove('active');
-    modal.setAttribute('aria-hidden', 'true');
-}
-
-function importCoolors(mode) {
-    const input = document.getElementById('coolorsImportUrl');
-    const colors = parseColorsFromUrl(input.value);
-
-    if (!colors) {
-        alert('Please enter a valid Coolors palette URL.');
-        return;
-    }
-
-    setColors(colors, mode);
-    closeCoolorsModal();
-}
+// =============================================================================
+// ZONE MANAGEMENT
+// =============================================================================
 
 function addZone() {
     const zoneInputs = document.getElementById('zoneInputs');
@@ -145,7 +89,6 @@ function getSettingsForLine(lineIndex, totalLines) {
     const colorMode = document.getElementById('colorMode').value;
 
     if (colorMode === 'zones') {
-        // Get all zones
         const zoneCards = document.querySelectorAll('.zone-card');
         const zones = Array.from(zoneCards).map(card => ({
             name: card.querySelector('.zone-name').value,
@@ -159,7 +102,6 @@ function getSettingsForLine(lineIndex, totalLines) {
             percentage: parseInt(card.querySelector('.zone-percentage').value)
         }));
 
-        // Calculate which zone this line belongs to
         const linePercentage = (lineIndex / totalLines) * 100;
 
         let cumulativePercentage = 0;
@@ -170,10 +112,8 @@ function getSettingsForLine(lineIndex, totalLines) {
             }
         }
 
-        // If we've gone past all zones, return the last zone's settings
         return zones[zones.length - 1];
     } else {
-        // Random color mode - return global settings with random color
         const colorScheme = getColorScheme();
         return {
             fillColor: colorScheme[randint(0, colorScheme.length - 1)],
@@ -187,193 +127,7 @@ function getSettingsForLine(lineIndex, totalLines) {
     }
 }
 
-// Store path data for SVG export
-let pathsData = [];
-
-function generateArt(seed = null) {
-    // Set up seeded RNG
-    currentSeed = seed !== null ? seed : generateSeed();
-    seedRng(currentSeed);
-
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Get global parameters
-    const displayWidth = parseInt(document.getElementById('displayWidth').value);
-    const displayHeight = parseInt(document.getElementById('displayHeight').value);
-    const numberLines = parseInt(document.getElementById('numberLines').value);
-    const backgroundColor = document.getElementById('backgroundColor').value;
-    const fillLines = document.getElementById('fillLines').checked;
-
-    // Set canvas size
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-
-    // Draw background
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, displayWidth, displayHeight);
-
-    // Clear paths data
-    pathsData = [];
-
-    // Draw each line (top to bottom, so bottom lines are drawn last and appear on top)
-    for (let l = 0; l < numberLines; l++) {
-        // Get settings for this specific line (zone-specific or global)
-        const settings = getSettingsForLine(l, numberLines);
-
-        // Determine weight direction for this line
-        let weightDirection;
-        if (settings.wavePattern === 'random') {
-            const options = ['center', 'left', 'right'];
-            weightDirection = options[randint(0, options.length - 1)];
-        } else {
-            weightDirection = settings.wavePattern;
-        }
-
-        const lineCenter = l * (displayHeight / numberLines);
-        const fillColor = fillLines ? settings.fillColor : 'none';
-        const segmentLength = displayWidth / settings.segments;
-
-        // Start building the path
-        const pathPoints = [];
-        let previousHeight = 0;
-
-        // Start point
-        pathPoints.push({ x: 0, y: lineCenter, type: 'start' });
-
-        for (let s = 0; s < settings.segments; s++) {
-            const distanceFromCenter = Math.abs(s - settings.segments / 2);
-            const distanceFromEdge = settings.segments / 2 - distanceFromCenter;
-
-            let newHeight;
-
-            // Edges are flat (first 3 and last 3 segments)
-            if (s < 3 || s > settings.segments - 4) {
-                newHeight = 0;
-                if (s === settings.segments - 4) {
-                    previousHeight = 0;
-                }
-            } else {
-                // Calculate height based on weight direction
-                if (weightDirection === 'center') {
-                    newHeight = randint(0, settings.waveHeight) * distanceFromEdge;
-                } else if (weightDirection === 'left') {
-                    newHeight = randint(0, settings.waveHeight) * (settings.segments - s);
-                } else if (weightDirection === 'right') {
-                    newHeight = randint(0, settings.waveHeight) * s;
-                } else {
-                    newHeight = randint(0, settings.waveHeight) * (settings.segments / 2);
-                }
-            }
-
-            // Add bezier curve control points
-            const cp1x = s * segmentLength + segmentLength / settings.bezierWeight;
-            const cp1y = lineCenter + previousHeight;
-            const cp2x = (s + 1) * segmentLength - segmentLength / settings.bezierWeight;
-            const cp2y = lineCenter + newHeight;
-            const endx = (s + 1) * segmentLength;
-            const endy = lineCenter + newHeight;
-
-            pathPoints.push({
-                type: 'bezier',
-                cp1x, cp1y,
-                cp2x, cp2y,
-                x: endx,
-                y: endy
-            });
-
-            previousHeight = newHeight;
-        }
-
-        // Draw on canvas
-        ctx.beginPath();
-        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
-
-        for (let i = 1; i < pathPoints.length; i++) {
-            const p = pathPoints[i];
-            if (p.type === 'bezier') {
-                ctx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
-            }
-        }
-
-        // If filling, close the path at the bottom
-        if (fillLines && fillColor !== 'none') {
-            ctx.lineTo(displayWidth, displayHeight);
-            ctx.lineTo(0, displayHeight);
-            ctx.closePath();
-            ctx.fillStyle = fillColor;
-            ctx.fill();
-        }
-
-        // Stroke the line
-        ctx.strokeStyle = settings.lineColor;
-        ctx.lineWidth = settings.lineWeight;
-        ctx.stroke();
-
-        // Store for SVG export
-        pathsData.push({
-            points: pathPoints,
-            fillColor: fillLines ? fillColor : 'none',
-            strokeColor: settings.lineColor,
-            strokeWidth: settings.lineWeight
-        });
-    }
-
-    setFaviconFromCanvas(canvas);
-}
-
-function downloadArt() {
-    const canvas = document.getElementById('canvas');
-    const link = document.createElement('a');
-    link.download = 'joy-division-art.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-}
-
-function downloadSVG() {
-    const displayWidth = parseInt(document.getElementById('displayWidth').value);
-    const displayHeight = parseInt(document.getElementById('displayHeight').value);
-    const backgroundColor = document.getElementById('backgroundColor').value;
-
-    // Build SVG
-    let svgContent = `<?xml version="1.0" encoding="utf-8" ?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">
-<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${backgroundColor}"/>
-`;
-
-    // Add paths
-    for (const pathData of pathsData) {
-        let pathString = `M ${pathData.points[0].x} ${pathData.points[0].y} `;
-
-        for (let i = 1; i < pathData.points.length; i++) {
-            const p = pathData.points[i];
-            if (p.type === 'bezier') {
-                pathString += `C ${p.cp1x} ${p.cp1y}, ${p.cp2x} ${p.cp2y}, ${p.x} ${p.y} `;
-            }
-        }
-
-        // Close path for filling
-        if (pathData.fillColor !== 'none') {
-            pathString += `L ${displayWidth} ${displayHeight} L 0 ${displayHeight} Z`;
-        }
-
-        const fillAttr = pathData.fillColor !== 'none' ? `fill="${pathData.fillColor}"` : 'fill="none"';
-
-        svgContent += `<path d="${pathString}" ${fillAttr} stroke="${pathData.strokeColor}" stroke-width="${pathData.strokeWidth}"/>\n`;
-    }
-
-    svgContent += '</svg>';
-
-    // Download
-    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-    const link = document.createElement('a');
-    link.download = 'joy-division-art.svg';
-    link.href = URL.createObjectURL(blob);
-    link.click();
-    URL.revokeObjectURL(link.href);
-}
-
-// Serialize zones to base64-encoded JSON
+// Zone serialization for sharing
 function serializeZones() {
     const zoneCards = document.querySelectorAll('.zone-card');
     const zones = Array.from(zoneCards).map(card => ({
@@ -390,7 +144,6 @@ function serializeZones() {
     return btoa(JSON.stringify(zones));
 }
 
-// Deserialize zones from base64-encoded JSON
 function deserializeZones(encoded) {
     try {
         const zones = JSON.parse(atob(encoded));
@@ -450,70 +203,188 @@ function deserializeZones(encoded) {
     }
 }
 
-function shareArt() {
-    const params = serializeFormToParams(FORM_INPUT_IDS);
-    params.set('seed', currentSeed);
+// =============================================================================
+// GENERATION
+// =============================================================================
 
-    // Add zone data if in zones mode
-    const colorMode = document.getElementById('colorMode').value;
-    if (colorMode === 'zones') {
-        params.set('zones', serializeZones());
+function generateArt(seed = null) {
+    currentSeed = seed !== null ? seed : generateSeed();
+    seedRng(currentSeed);
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const displayWidth = parseInt(document.getElementById('displayWidth').value);
+    const displayHeight = parseInt(document.getElementById('displayHeight').value);
+    const numberLines = parseInt(document.getElementById('numberLines').value);
+    const backgroundColor = document.getElementById('backgroundColor').value;
+    const fillLines = document.getElementById('fillLines').checked;
+
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+    pathsData = [];
+
+    for (let l = 0; l < numberLines; l++) {
+        const settings = getSettingsForLine(l, numberLines);
+
+        let weightDirection;
+        if (settings.wavePattern === 'random') {
+            const options = ['center', 'left', 'right'];
+            weightDirection = options[randint(0, options.length - 1)];
+        } else {
+            weightDirection = settings.wavePattern;
+        }
+
+        const lineCenter = l * (displayHeight / numberLines);
+        const fillColor = fillLines ? settings.fillColor : 'none';
+        const segmentLength = displayWidth / settings.segments;
+
+        const pathPoints = [];
+        let previousHeight = 0;
+
+        pathPoints.push({ x: 0, y: lineCenter, type: 'start' });
+
+        for (let s = 0; s < settings.segments; s++) {
+            const distanceFromCenter = Math.abs(s - settings.segments / 2);
+            const distanceFromEdge = settings.segments / 2 - distanceFromCenter;
+
+            let newHeight;
+
+            if (s < 3 || s > settings.segments - 4) {
+                newHeight = 0;
+                if (s === settings.segments - 4) {
+                    previousHeight = 0;
+                }
+            } else {
+                if (weightDirection === 'center') {
+                    newHeight = randint(0, settings.waveHeight) * distanceFromEdge;
+                } else if (weightDirection === 'left') {
+                    newHeight = randint(0, settings.waveHeight) * (settings.segments - s);
+                } else if (weightDirection === 'right') {
+                    newHeight = randint(0, settings.waveHeight) * s;
+                } else {
+                    newHeight = randint(0, settings.waveHeight) * (settings.segments / 2);
+                }
+            }
+
+            const cp1x = s * segmentLength + segmentLength / settings.bezierWeight;
+            const cp1y = lineCenter + previousHeight;
+            const cp2x = (s + 1) * segmentLength - segmentLength / settings.bezierWeight;
+            const cp2y = lineCenter + newHeight;
+            const endx = (s + 1) * segmentLength;
+            const endy = lineCenter + newHeight;
+
+            pathPoints.push({
+                type: 'bezier',
+                cp1x, cp1y,
+                cp2x, cp2y,
+                x: endx,
+                y: endy
+            });
+
+            previousHeight = newHeight;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+
+        for (let i = 1; i < pathPoints.length; i++) {
+            const p = pathPoints[i];
+            if (p.type === 'bezier') {
+                ctx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
+            }
+        }
+
+        if (fillLines && fillColor !== 'none') {
+            ctx.lineTo(displayWidth, displayHeight);
+            ctx.lineTo(0, displayHeight);
+            ctx.closePath();
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+        }
+
+        ctx.strokeStyle = settings.lineColor;
+        ctx.lineWidth = settings.lineWeight;
+        ctx.stroke();
+
+        pathsData.push({
+            points: pathPoints,
+            fillColor: fillLines ? fillColor : 'none',
+            strokeColor: settings.lineColor,
+            strokeWidth: settings.lineWeight
+        });
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-
-    copyToClipboard(url).then(() => {
-        const feedback = document.getElementById('shareFeedback');
-        feedback.textContent = 'Link copied!';
-        feedback.classList.add('visible');
-        setTimeout(() => {
-            feedback.classList.remove('visible');
-        }, 2000);
-    });
+    setFaviconFromCanvas(canvas);
 }
 
+// =============================================================================
+// EXPORT
+// =============================================================================
+
+function downloadArt() {
+    const canvas = document.getElementById('canvas');
+    downloadCanvasAsPng(canvas, 'joy-division-art.png');
+}
+
+function downloadSVG() {
+    const displayWidth = parseInt(document.getElementById('displayWidth').value);
+    const displayHeight = parseInt(document.getElementById('displayHeight').value);
+    const backgroundColor = document.getElementById('backgroundColor').value;
+
+    let svgContent = `<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">
+<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${backgroundColor}"/>
+`;
+
+    for (const pathData of pathsData) {
+        let pathString = `M ${pathData.points[0].x} ${pathData.points[0].y} `;
+
+        for (let i = 1; i < pathData.points.length; i++) {
+            const p = pathData.points[i];
+            if (p.type === 'bezier') {
+                pathString += `C ${p.cp1x} ${p.cp1y}, ${p.cp2x} ${p.cp2y}, ${p.x} ${p.y} `;
+            }
+        }
+
+        if (pathData.fillColor !== 'none') {
+            pathString += `L ${displayWidth} ${displayHeight} L 0 ${displayHeight} Z`;
+        }
+
+        const fillAttr = pathData.fillColor !== 'none' ? `fill="${pathData.fillColor}"` : 'fill="none"';
+
+        svgContent += `<path d="${pathString}" ${fillAttr} stroke="${pathData.strokeColor}" stroke-width="${pathData.strokeWidth}"/>\n`;
+    }
+
+    svgContent += '</svg>';
+    downloadSvgContent(svgContent, 'joy-division-art.svg');
+}
+
+function handleShare() {
+    const colorMode = document.getElementById('colorMode').value;
+    const extraParams = colorMode === 'zones' ? { zones: serializeZones() } : {};
+    shareArt(FORM_INPUT_IDS, currentSeed, extraParams);
+}
+
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
+
 function bindControls() {
-    const addColorButton = document.getElementById('addColorButton');
-    const importColorsButton = document.getElementById('importColorsButton');
-    const coolorsModal = document.getElementById('coolorsModal');
-    const coolorsModalClose = document.getElementById('coolorsModalClose');
-    const importCancelButton = document.getElementById('importCancelButton');
-    const importAddButton = document.getElementById('importAddButton');
-    const importOverwriteButton = document.getElementById('importOverwriteButton');
-    const addZoneButton = document.getElementById('addZoneButton');
-    const generateButton = document.getElementById('generateButton');
-    const downloadPngButton = document.getElementById('downloadPngButton');
-    const downloadSvgButton = document.getElementById('downloadSvgButton');
-    const shareButton = document.getElementById('shareButton');
-    const colorInputs = document.getElementById('colorInputs');
-    const zoneInputs = document.getElementById('zoneInputs');
+    const fillLinesToggle = document.getElementById('fillLines');
     const colorModeSelect = document.getElementById('colorMode');
+    const zoneInputs = document.getElementById('zoneInputs');
 
-    addColorButton.addEventListener('click', addColor);
-    importColorsButton.addEventListener('click', openCoolorsModal);
-    addZoneButton.addEventListener('click', addZone);
-    generateButton.addEventListener('click', () => generateArt());
-    downloadPngButton.addEventListener('click', downloadArt);
-    downloadSvgButton.addEventListener('click', downloadSVG);
-    shareButton.addEventListener('click', shareArt);
+    document.getElementById('addZoneButton').addEventListener('click', addZone);
+    document.getElementById('generateButton').addEventListener('click', () => generateArt());
+    document.getElementById('downloadPngButton').addEventListener('click', downloadArt);
+    document.getElementById('downloadSvgButton').addEventListener('click', downloadSVG);
+    document.getElementById('shareButton').addEventListener('click', handleShare);
     colorModeSelect.addEventListener('change', toggleColorMode);
-
-    colorInputs.addEventListener('click', (event) => {
-        if (event.target.classList.contains('remove-color')) {
-            removeColor(event.target);
-        }
-    });
-
-    coolorsModal.addEventListener('click', (event) => {
-        if (event.target === coolorsModal) {
-            closeCoolorsModal();
-        }
-    });
-
-    coolorsModalClose.addEventListener('click', closeCoolorsModal);
-    importCancelButton.addEventListener('click', closeCoolorsModal);
-    importAddButton.addEventListener('click', () => importCoolors('add'));
-    importOverwriteButton.addEventListener('click', () => importCoolors('overwrite'));
 
     zoneInputs.addEventListener('click', (event) => {
         if (event.target.classList.contains('zone-remove')) {
@@ -521,54 +392,38 @@ function bindControls() {
         }
     });
 
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && coolorsModal.classList.contains('active')) {
-            closeCoolorsModal();
+    fillLinesToggle.addEventListener('change', function() {
+        const colorModeGroup = document.getElementById('colorModeGroup');
+        const randomControls = document.getElementById('randomColorControls');
+        const zoneControls = document.getElementById('zoneColorControls');
+
+        if (this.checked) {
+            colorModeGroup.style.display = 'block';
+            toggleColorMode();
+        } else {
+            colorModeGroup.style.display = 'none';
+            randomControls.style.display = 'none';
+            zoneControls.style.display = 'none';
         }
     });
 }
 
-// Update color controls visibility based on fill checkbox
-const fillLinesToggle = document.getElementById('fillLines');
-fillLinesToggle.addEventListener('change', function() {
-    const colorModeGroup = document.getElementById('colorModeGroup');
-    const randomControls = document.getElementById('randomColorControls');
-    const zoneControls = document.getElementById('zoneColorControls');
-
-    if (this.checked) {
-        colorModeGroup.style.display = 'block';
-        // Show the appropriate color controls based on current mode
-        toggleColorMode();
-    } else {
-        colorModeGroup.style.display = 'none';
-        randomControls.style.display = 'none';
-        zoneControls.style.display = 'none';
-    }
-});
-
 window.addEventListener('load', () => {
-    bindControls();
-
-    // Check for URL params and restore state
-    const params = new URLSearchParams(window.location.search);
-    const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
-
-    // Restore zones if present
-    if (params.has('zones')) {
-        deserializeZones(params.get('zones'));
-    }
-
-    // Update visibility of color controls
-    if (fillLinesToggle.checked) {
-        toggleColorMode();
-    }
-
-    if (hasSeed && params.has('seed')) {
-        generateArt(parseInt(params.get('seed')));
-    } else {
-        generateArt();
-    }
-
-    // Handle auto-download if requested via URL param
-    handleAutoDownload({ png: downloadArt, svg: downloadSVG });
+    initGenerator({
+        formInputIds: FORM_INPUT_IDS,
+        generateFn: generateArt,
+        downloadFns: { png: downloadArt, svg: downloadSVG },
+        extraBindings: bindControls,
+        onParamsLoaded: (params) => {
+            // Restore zones if present
+            if (params.has('zones')) {
+                deserializeZones(params.get('zones'));
+            }
+            // Update visibility of color controls
+            const fillLinesToggle = document.getElementById('fillLines');
+            if (fillLinesToggle.checked) {
+                toggleColorMode();
+            }
+        }
+    });
 });

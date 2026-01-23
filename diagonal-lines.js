@@ -1,11 +1,9 @@
-// Store the tracking grid and line data for SVG export
 let trackingGrid = [];
 let linesData = [];
 let diamondsData = [];
 let pathData = [];
 let currentSeed = null;
 
-// Form input IDs for serialization
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'gridSize', 'strokeWidth', 'fillSquares',
     'showPathfinders', 'pathfinderMode', 'pathfinderColor', 'pathfinderStyle',
@@ -13,18 +11,15 @@ const FORM_INPUT_IDS = [
     'fillColor', 'lineJitter', 'lineGlow', 'lineBias'
 ];
 
+// =============================================================================
+// PATHFINDER HELPERS
+// =============================================================================
+
 function triangleForSide(orientation, side) {
     if (orientation === 0) {
-        if (side === 'top' || side === 'left') {
-            return 0;
-        }
-        return 1;
+        return (side === 'top' || side === 'left') ? 0 : 1;
     }
-
-    if (side === 'bottom' || side === 'left') {
-        return 0;
-    }
-    return 1;
+    return (side === 'bottom' || side === 'left') ? 0 : 1;
 }
 
 function nodeId(x, y, triangle, yGridCount) {
@@ -171,9 +166,7 @@ function drawPaths(ctx, paths, color, width, gridSize, yGridCount, style) {
     pathData = [];
 
     for (const entry of paths) {
-        if (entry.path.length < 2) {
-            continue;
-        }
+        if (entry.path.length < 2) continue;
 
         const points = entry.path.map((id) => {
             const node = nodeFromId(id, yGridCount);
@@ -189,11 +182,7 @@ function drawPaths(ctx, paths, color, width, gridSize, yGridCount, style) {
                 const next = points[i + 1];
                 const midX = (current.x + next.x) / 2;
                 const midY = (current.y + next.y) / 2;
-                if (i === 0) {
-                    ctx.quadraticCurveTo(current.x, current.y, midX, midY);
-                } else {
-                    ctx.quadraticCurveTo(current.x, current.y, midX, midY);
-                }
+                ctx.quadraticCurveTo(current.x, current.y, midX, midY);
             }
             ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
         } else {
@@ -211,15 +200,17 @@ function drawPaths(ctx, paths, color, width, gridSize, yGridCount, style) {
     }
 }
 
+// =============================================================================
+// GENERATION
+// =============================================================================
+
 function generateArt(seed = null) {
-    // Set up seeded RNG
     currentSeed = seed !== null ? seed : generateSeed();
     seedRng(currentSeed);
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    // Get parameters from form
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
     const gridSize = parseInt(document.getElementById('gridSize').value);
@@ -233,27 +224,22 @@ function generateArt(seed = null) {
     const lineBias = parseFloat(document.getElementById('lineBias').value);
     const slashProbability = Number.isFinite(lineBias) ? Math.min(Math.max(lineBias, 0), 100) / 100 : 0.5;
 
-    // Set canvas size
     canvas.width = displayWidth;
     canvas.height = displayHeight;
 
-    // Calculate grid dimensions
     const xGridCount = Math.floor(displayWidth / gridSize);
     const yGridCount = Math.floor(displayHeight / gridSize);
 
-    // Initialize tracking grid (0 = /, 1 = \)
     trackingGrid = Array(xGridCount).fill(null).map(() => Array(yGridCount).fill(0));
     linesData = [];
     diamondsData = [];
 
-    // Draw background
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, displayWidth, displayHeight);
 
     ctx.shadowColor = lineColor;
     ctx.shadowBlur = lineGlow;
 
-    // Generate diagonal lines
     for (let xGrid = 0; xGrid < xGridCount; xGrid++) {
         for (let yGrid = 0; yGrid < yGridCount; yGrid++) {
             const minX = gridSize * xGrid - (0.35 * strokeWidth);
@@ -268,7 +254,6 @@ function generateArt(seed = null) {
             const jitterY2 = (random() * 2 - 1) * lineJitter;
 
             if (orientation === 1) {
-                // / (forward slash)
                 ctx.beginPath();
                 ctx.moveTo(minX + jitterX1, maxY + jitterY1);
                 ctx.lineTo(maxX + jitterX2, minY + jitterY2);
@@ -279,7 +264,6 @@ function generateArt(seed = null) {
                 trackingGrid[xGrid][yGrid] = 0;
                 linesData.push({ x1: minX + jitterX1, y1: maxY + jitterY1, x2: maxX + jitterX2, y2: minY + jitterY2 });
             } else {
-                // \ (backslash)
                 ctx.beginPath();
                 ctx.moveTo(minX + jitterX1, minY + jitterY1);
                 ctx.lineTo(maxX + jitterX2, maxY + jitterY2);
@@ -295,20 +279,15 @@ function generateArt(seed = null) {
 
     ctx.shadowBlur = 0;
 
-    // Fill diamond patterns if enabled
     if (fillSquares) {
-        // Look for pattern [[0,1],[1,0]] which creates diamonds
         for (let xGrid = 0; xGrid < xGridCount - 1; xGrid++) {
             for (let yGrid = 0; yGrid < yGridCount - 1; yGrid++) {
-                // Check for the diamond pattern
                 const topLeft = trackingGrid[xGrid][yGrid];
                 const topRight = trackingGrid[xGrid + 1][yGrid];
                 const bottomLeft = trackingGrid[xGrid][yGrid + 1];
                 const bottomRight = trackingGrid[xGrid + 1][yGrid + 1];
 
-                // Pattern: top-left=0, top-right=1, bottom-left=1, bottom-right=0
                 if (topLeft === 0 && topRight === 1 && bottomLeft === 1 && bottomRight === 0) {
-                    // Draw a diamond
                     const points = [
                         { x: (xGrid + 1) * gridSize, y: yGrid * gridSize },
                         { x: (xGrid + 2) * gridSize, y: (yGrid + 1) * gridSize },
@@ -333,7 +312,6 @@ function generateArt(seed = null) {
         }
     }
 
-    // Generate pathfinders if enabled
     const showPathfinders = document.getElementById('showPathfinders').checked;
     if (showPathfinders) {
         ctx.shadowBlur = 0;
@@ -368,12 +346,12 @@ function generateArt(seed = null) {
     setFaviconFromCanvas(canvas);
 }
 
+// =============================================================================
+// EXPORT
+// =============================================================================
+
 function downloadArt() {
-    const canvas = document.getElementById('canvas');
-    const link = document.createElement('a');
-    link.download = 'diagonal-lines-art.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    downloadCanvasAsPng(document.getElementById('canvas'), 'diagonal-lines-art.png');
 }
 
 function downloadSVG() {
@@ -385,7 +363,6 @@ function downloadSVG() {
     const fillColor = document.getElementById('fillColor').value;
     const lineGlow = parseFloat(document.getElementById('lineGlow').value) || 0;
 
-    // Build SVG
     const hasGlow = lineGlow > 0;
     const lineFilter = hasGlow ? ' filter="url(#line-glow)"' : '';
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>
@@ -406,22 +383,17 @@ function downloadSVG() {
 `;
     }
 
-    // Add lines
     for (const line of linesData) {
         svgContent += `<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="${lineColor}" stroke-width="${strokeWidth}" fill="none"${lineFilter}/>\n`;
     }
 
-    // Add diamonds
     for (const diamond of diamondsData) {
         const points = diamond.map(p => `${p.x},${p.y}`).join(' ');
         svgContent += `<polygon points="${points}" fill="${fillColor}" stroke="${lineColor}"/>\n`;
     }
 
-    // Add paths
     for (const path of pathData) {
-        if (path.points.length < 2) {
-            continue;
-        }
+        if (path.points.length < 2) continue;
         let pathString = `M ${path.points[0].x} ${path.points[0].y} `;
         if (path.style === 'smooth' && path.points.length > 2) {
             for (let i = 0; i < path.points.length - 1; i++) {
@@ -442,58 +414,29 @@ function downloadSVG() {
     }
 
     svgContent += '</svg>';
-
-    // Download
-    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-    const link = document.createElement('a');
-    link.download = 'diagonal-lines-art.svg';
-    link.href = URL.createObjectURL(blob);
-    link.click();
-    URL.revokeObjectURL(link.href);
+    downloadSvgContent(svgContent, 'diagonal-lines-art.svg');
 }
 
-function shareArt() {
-    const params = serializeFormToParams(FORM_INPUT_IDS);
-    params.set('seed', currentSeed);
-
-    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-
-    copyToClipboard(url).then(() => {
-        const feedback = document.getElementById('shareFeedback');
-        feedback.textContent = 'Link copied!';
-        feedback.classList.add('visible');
-        setTimeout(() => {
-            feedback.classList.remove('visible');
-        }, 2000);
-    });
+function handleShare() {
+    shareArt(FORM_INPUT_IDS, currentSeed);
 }
 
-// Generate on page load
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
+
 function bindControls() {
-    const generateButton = document.getElementById('generateButton');
-    const downloadPngButton = document.getElementById('downloadPngButton');
-    const downloadSvgButton = document.getElementById('downloadSvgButton');
-    const shareButton = document.getElementById('shareButton');
-
-    generateButton.addEventListener('click', () => generateArt());
-    downloadPngButton.addEventListener('click', downloadArt);
-    downloadSvgButton.addEventListener('click', downloadSVG);
-    shareButton.addEventListener('click', shareArt);
+    document.getElementById('generateButton').addEventListener('click', () => generateArt());
+    document.getElementById('downloadPngButton').addEventListener('click', downloadArt);
+    document.getElementById('downloadSvgButton').addEventListener('click', downloadSVG);
+    document.getElementById('shareButton').addEventListener('click', handleShare);
 }
 
 window.addEventListener('load', () => {
-    bindControls();
-
-    // Check for URL params and restore state
-    const params = new URLSearchParams(window.location.search);
-    const hasSeed = deserializeParamsToForm(FORM_INPUT_IDS);
-
-    if (hasSeed && params.has('seed')) {
-        generateArt(parseInt(params.get('seed')));
-    } else {
-        generateArt();
-    }
-
-    // Handle auto-download if requested via URL param
-    handleAutoDownload({ png: downloadArt, svg: downloadSVG });
+    initGenerator({
+        formInputIds: FORM_INPUT_IDS,
+        generateFn: generateArt,
+        downloadFns: { png: downloadArt, svg: downloadSVG },
+        extraBindings: bindControls
+    });
 });
