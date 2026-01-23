@@ -3,12 +3,15 @@ let linesData = [];
 let diamondsData = [];
 let pathData = [];
 let currentSeed = null;
+let animationId = null;
+let animationState = null;
 
 const FORM_INPUT_IDS = [
     'displayWidth', 'displayHeight', 'gridSize', 'strokeWidth', 'fillSquares',
     'showPathfinders', 'pathfinderMode', 'pathfinderColor', 'pathfinderStyle',
     'pathfinderWidth', 'pathfinderMinLength', 'backgroundColor', 'lineColor',
-    'fillColor', 'lineJitter', 'lineGlow', 'lineBias'
+    'fillColor', 'lineJitter', 'lineGlow', 'lineBias', 'animationMode',
+    'animationSpeed', 'exportDuration'
 ];
 
 // =============================================================================
@@ -201,10 +204,212 @@ function drawPaths(ctx, paths, color, width, gridSize, yGridCount, style) {
 }
 
 // =============================================================================
+// ANIMATION
+// =============================================================================
+
+function stopAnimation() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+}
+
+function resetAnimation() {
+    stopAnimation();
+    animationState = null;
+}
+
+function updateToggleButton() {
+    const toggleButton = document.getElementById('toggleButton');
+    const animationMode = document.getElementById('animationMode').value;
+    const showPathfinders = document.getElementById('showPathfinders').checked;
+
+    if (animationMode === 'none' || !showPathfinders) {
+        toggleButton.style.display = 'none';
+    } else {
+        toggleButton.style.display = '';
+        toggleButton.textContent = animationId ? 'Stop' : 'Start';
+    }
+}
+
+function toggleAnimation() {
+    if (animationId) {
+        stopAnimation();
+    } else if (animationState) {
+        resumeAnimation();
+    }
+    updateToggleButton();
+}
+
+function resumeAnimation() {
+    if (!animationState) return;
+
+    const { mode } = animationState;
+    if (mode === 'longestPath') {
+        animateLongestPath();
+    } else if (mode === 'elimination') {
+        animateElimination();
+    }
+}
+
+function drawBaseGrid(ctx, settings) {
+    const { displayWidth, displayHeight, backgroundColor, lineColor, fillColor, strokeWidth, lineGlow } = settings;
+
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+    ctx.shadowColor = lineColor;
+    ctx.shadowBlur = lineGlow;
+
+    for (const line of linesData) {
+        ctx.beginPath();
+        ctx.moveTo(line.x1, line.y1);
+        ctx.lineTo(line.x2, line.y2);
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = strokeWidth;
+        ctx.stroke();
+    }
+
+    ctx.shadowBlur = 0;
+
+    for (const diamond of diamondsData) {
+        ctx.beginPath();
+        ctx.moveTo(diamond[0].x, diamond[0].y);
+        ctx.lineTo(diamond[1].x, diamond[1].y);
+        ctx.lineTo(diamond[2].x, diamond[2].y);
+        ctx.lineTo(diamond[3].x, diamond[3].y);
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.strokeStyle = lineColor;
+        ctx.stroke();
+    }
+}
+
+function drawPathPartial(ctx, points, endIndex, color, width, style) {
+    if (endIndex < 2) return;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+
+    if (style === 'smooth' && endIndex > 2) {
+        for (let i = 0; i < endIndex - 1; i++) {
+            const current = points[i];
+            const next = points[i + 1];
+            const midX = (current.x + next.x) / 2;
+            const midY = (current.y + next.y) / 2;
+            ctx.quadraticCurveTo(current.x, current.y, midX, midY);
+        }
+        ctx.lineTo(points[endIndex - 1].x, points[endIndex - 1].y);
+    } else {
+        for (let i = 1; i < endIndex; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+}
+
+function animateLongestPath() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const { longestPath, settings } = animationState;
+    const frameDelay = 1000 / settings.animationSpeed;
+    let lastFrameTime = 0;
+
+    function frame(timestamp) {
+        if (timestamp - lastFrameTime < frameDelay) {
+            animationId = requestAnimationFrame(frame);
+            return;
+        }
+        lastFrameTime = timestamp;
+
+        drawBaseGrid(ctx, settings);
+
+        const endIndex = Math.min(animationState.currentStep + 2, longestPath.points.length);
+        drawPathPartial(ctx, longestPath.points, endIndex, settings.pathfinderColor, settings.pathfinderWidth, settings.pathfinderStyle);
+
+        animationState.currentStep++;
+
+        if (animationState.currentStep >= longestPath.points.length - 1) {
+            animationState.currentStep = 0;
+        }
+
+        setFaviconFromCanvas(canvas);
+        animationId = requestAnimationFrame(frame);
+    }
+
+    animationId = requestAnimationFrame(frame);
+}
+
+function animateElimination() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const { allPaths, longestPath, settings } = animationState;
+    const frameDelay = 1000 / settings.animationSpeed;
+    let lastFrameTime = 0;
+
+    function frame(timestamp) {
+        if (timestamp - lastFrameTime < frameDelay) {
+            animationId = requestAnimationFrame(frame);
+            return;
+        }
+        lastFrameTime = timestamp;
+
+        drawBaseGrid(ctx, settings);
+
+        let allComplete = true;
+        const longestLength = longestPath.points.length;
+
+        for (const pathEntry of allPaths) {
+            const points = pathEntry.points;
+            const pathLength = points.length;
+            const endIndex = Math.min(animationState.globalStep + 2, pathLength);
+
+            if (endIndex < pathLength) {
+                allComplete = false;
+            }
+
+            // Calculate opacity: fade out shorter paths once they're complete
+            let opacity = 1;
+            if (endIndex >= pathLength && pathLength < longestLength) {
+                // Path is complete and not the longest - fade it out
+                const fadeSteps = 30;
+                const stepsAfterComplete = animationState.globalStep - (pathLength - 2);
+                opacity = Math.max(0, 1 - stepsAfterComplete / fadeSteps);
+            }
+
+            if (opacity > 0) {
+                ctx.globalAlpha = opacity;
+                drawPathPartial(ctx, points, endIndex, settings.pathfinderColor, settings.pathfinderWidth, settings.pathfinderStyle);
+            }
+        }
+
+        ctx.globalAlpha = 1;
+        animationState.globalStep++;
+
+        // Reset when longest path is fully drawn and others have faded
+        if (allComplete && animationState.globalStep > longestLength + 60) {
+            animationState.globalStep = 0;
+        }
+
+        setFaviconFromCanvas(canvas);
+        animationId = requestAnimationFrame(frame);
+    }
+
+    animationId = requestAnimationFrame(frame);
+}
+
+// =============================================================================
 // GENERATION
 // =============================================================================
 
 function generateArt(seed = null) {
+    resetAnimation();
     currentSeed = seed !== null ? seed : generateSeed();
     seedRng(currentSeed);
 
@@ -313,13 +518,22 @@ function generateArt(seed = null) {
     }
 
     const showPathfinders = document.getElementById('showPathfinders').checked;
+    const animationMode = document.getElementById('animationMode').value;
+    const animationSpeed = parseInt(document.getElementById('animationSpeed').value) || 30;
+    const pathfinderMode = document.getElementById('pathfinderMode').value;
+    const pathfinderColor = document.getElementById('pathfinderColor').value;
+    const pathfinderWidth = parseFloat(document.getElementById('pathfinderWidth').value);
+    const pathfinderStyle = document.getElementById('pathfinderStyle').value;
+    const pathfinderMinLength = parseInt(document.getElementById('pathfinderMinLength').value);
+
+    const settings = {
+        displayWidth, displayHeight, backgroundColor, lineColor, fillColor,
+        strokeWidth, lineGlow, pathfinderColor, pathfinderWidth, pathfinderStyle,
+        animationSpeed
+    };
+
     if (showPathfinders) {
         ctx.shadowBlur = 0;
-        const pathfinderMode = document.getElementById('pathfinderMode').value;
-        const pathfinderColor = document.getElementById('pathfinderColor').value;
-        const pathfinderWidth = parseFloat(document.getElementById('pathfinderWidth').value);
-        const pathfinderStyle = document.getElementById('pathfinderStyle').value;
-        const pathfinderMinLength = parseInt(document.getElementById('pathfinderMinLength').value);
 
         const neighbors = buildNeighbors(xGridCount, yGridCount);
         const boundaryNodes = getBoundaryNodes(xGridCount, yGridCount);
@@ -327,22 +541,60 @@ function generateArt(seed = null) {
             .map((node) => findLongestPathFrom(node, neighbors))
             .filter((entry) => entry.length >= pathfinderMinLength);
 
-        let pathsToDraw = paths;
-        if (pathfinderMode === 'longest') {
-            let longest = null;
-            for (const entry of paths) {
-                if (!longest || entry.length > longest.length) {
-                    longest = entry;
-                }
+        // Convert paths to point arrays
+        const allPathsWithPoints = paths.map((entry) => ({
+            length: entry.length,
+            points: entry.path.map((id) => {
+                const node = nodeFromId(id, yGridCount);
+                const orientation = trackingGrid[node.x][node.y];
+                return triangleCenter(node.x, node.y, node.triangle, orientation, gridSize);
+            })
+        }));
+
+        // Find the longest path
+        let longestPath = null;
+        for (const entry of allPathsWithPoints) {
+            if (!longestPath || entry.points.length > longestPath.points.length) {
+                longestPath = entry;
             }
-            pathsToDraw = longest ? [longest] : [];
         }
 
-        drawPaths(ctx, pathsToDraw, pathfinderColor, pathfinderWidth, gridSize, yGridCount, pathfinderStyle);
+        if (animationMode !== 'none' && longestPath) {
+            // Set up animation state
+            animationState = {
+                mode: animationMode,
+                longestPath,
+                allPaths: allPathsWithPoints,
+                settings,
+                currentStep: 0,
+                globalStep: 0
+            };
+
+            if (animationMode === 'longestPath') {
+                animateLongestPath();
+            } else if (animationMode === 'elimination') {
+                animateElimination();
+            }
+        } else {
+            // Static rendering
+            let pathsToDraw = paths;
+            if (pathfinderMode === 'longest') {
+                let longest = null;
+                for (const entry of paths) {
+                    if (!longest || entry.length > longest.length) {
+                        longest = entry;
+                    }
+                }
+                pathsToDraw = longest ? [longest] : [];
+            }
+
+            drawPaths(ctx, pathsToDraw, pathfinderColor, pathfinderWidth, gridSize, yGridCount, pathfinderStyle);
+        }
     } else {
         pathData = [];
     }
 
+    updateToggleButton();
     setFaviconFromCanvas(canvas);
 }
 
@@ -417,6 +669,59 @@ function downloadSVG() {
     downloadSvgContent(svgContent, 'diagonal-lines-art.svg');
 }
 
+async function downloadGif() {
+    const animationMode = document.getElementById('animationMode').value;
+    const showPathfinders = document.getElementById('showPathfinders').checked;
+
+    if (animationMode === 'none' || !showPathfinders) {
+        alert('Please enable pathfinders and select an animation mode to export a GIF.');
+        return;
+    }
+
+    const wasRunning = Boolean(animationId);
+    if (!wasRunning && animationState) {
+        resumeAnimation();
+    }
+
+    await exportGif({
+        canvas: document.getElementById('canvas'),
+        filename: 'diagonal-lines-art.gif',
+        buttonId: 'downloadGifButton'
+    });
+
+    if (!wasRunning) {
+        stopAnimation();
+        updateToggleButton();
+    }
+}
+
+function downloadWebm() {
+    const animationMode = document.getElementById('animationMode').value;
+    const showPathfinders = document.getElementById('showPathfinders').checked;
+
+    if (animationMode === 'none' || !showPathfinders) {
+        alert('Please enable pathfinders and select an animation mode to record a video.');
+        return;
+    }
+
+    const wasRunning = Boolean(animationId);
+    if (!wasRunning && animationState) {
+        resumeAnimation();
+    }
+
+    recordWebm({
+        canvas: document.getElementById('canvas'),
+        filename: 'diagonal-lines-art.webm',
+        buttonId: 'recordWebmButton',
+        onStop: () => {
+            if (!wasRunning) {
+                stopAnimation();
+                updateToggleButton();
+            }
+        }
+    });
+}
+
 function handleShare() {
     shareArt(FORM_INPUT_IDS, currentSeed);
 }
@@ -427,8 +732,11 @@ function handleShare() {
 
 function bindControls() {
     document.getElementById('generateButton').addEventListener('click', () => generateArt());
+    document.getElementById('toggleButton').addEventListener('click', toggleAnimation);
     document.getElementById('downloadPngButton').addEventListener('click', downloadArt);
     document.getElementById('downloadSvgButton').addEventListener('click', downloadSVG);
+    document.getElementById('downloadGifButton').addEventListener('click', downloadGif);
+    document.getElementById('recordWebmButton').addEventListener('click', downloadWebm);
     document.getElementById('shareButton').addEventListener('click', handleShare);
 }
 
@@ -436,7 +744,7 @@ window.addEventListener('load', () => {
     initGenerator({
         formInputIds: FORM_INPUT_IDS,
         generateFn: generateArt,
-        downloadFns: { png: downloadArt, svg: downloadSVG },
+        downloadFns: { png: downloadArt, svg: downloadSVG, gif: downloadGif, webm: downloadWebm },
         extraBindings: bindControls
     });
 });
