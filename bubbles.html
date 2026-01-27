@@ -20,123 +20,151 @@
             </div>
 
             <div class="controls-panel">
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1920" min="100" max="4000">
-                        <small>Width of the canvas in pixels</small>
-                    </div>
+                <details class="control-section">
+                    <summary>Basics</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="displayWidth">Canvas Width (px)</label>
+                                <input type="number" id="displayWidth" value="1920" min="100" max="4000">
+                                <small>Width of the canvas in pixels</small>
+                            </div>
 
-                    <div class="control-group">
-                        <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="1080" min="100" max="4000">
-                        <small>Height of the canvas in pixels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="bubbleCount">Number of Bubbles</label>
-                        <input type="number" id="bubbleCount" value="120" min="1" max="2000">
-                        <small>How many bubbles to draw</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="minRadius">Min Radius (px)</label>
-                        <input type="number" id="minRadius" value="8" min="1" max="500">
-                        <small>Smallest bubble size</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="maxRadius">Max Radius (px)</label>
-                        <input type="number" id="maxRadius" value="80" min="1" max="800">
-                        <small>Largest bubble size</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="bubbleStyle">Bubble Style</label>
-                        <select id="bubbleStyle">
-                            <option value="filled" selected>Filled</option>
-                            <option value="outline">Outline</option>
-                            <option value="random">Random</option>
-                        </select>
-                        <small>Filled, outline, or mixed</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="strokeWidth">Outline Width (px)</label>
-                        <input type="number" id="strokeWidth" value="2" min="1" max="20">
-                        <small>Stroke thickness for outlines</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="overlapMode">Overlap Mode</label>
-                        <select id="overlapMode">
-                            <option value="normal" selected>Normal</option>
-                            <option value="add">Additive</option>
-                            <option value="subtract">Subtract</option>
-                            <option value="intersect">Intersect</option>
-                            <option value="random">Random Per Bubble</option>
-                        </select>
-                        <small>Blend style for overlapping bubbles</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="animateBubbles">Animate Bubbles</label>
-                        <input type="checkbox" id="animateBubbles">
-                        <small>Enable gentle motion with wall bounces</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="bubbleSpeed">Bubble Speed (px/sec)</label>
-                        <input type="number" id="bubbleSpeed" value="40" min="0" max="300" step="1">
-                        <small>Speed for animated bubbles</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="backgroundColor">Background Color</label>
-                        <input type="color" id="backgroundColor" value="#0b0f1a">
-                        <small>Canvas background color</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Custom Color Scheme</label>
-                    <div id="colorInputs" class="color-inputs">
-                        <div class="color-input-group">
-                            <input type="color" value="#FF6B6B">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#FECA57">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#54A0FF">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#5F27CD">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#1DD1A1">
-                            <button type="button" class="remove-color">Remove</button>
+                            <div class="control-group">
+                                <label for="displayHeight">Canvas Height (px)</label>
+                                <input type="number" id="displayHeight" value="1080" min="100" max="4000">
+                                <small>Height of the canvas in pixels</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
-                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
-                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
-                    </div>
-                    <small>Colors used for bubbles</small>
-                </div>
+                </details>
 
-                <div class="control-group">
-                    <label>Text Overlays</label>
-                    <div id="textOverlayList" class="text-overlay-list"></div>
-                    <div class="text-overlay-actions">
-                        <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                <details class="control-section" open>
+                    <summary>Bubbles</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="bubbleCount">Number of Bubbles</label>
+                                <input type="number" id="bubbleCount" value="120" min="1" max="2000">
+                                <small>How many bubbles to draw</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="minRadius">Min Radius (px)</label>
+                                <input type="number" id="minRadius" value="8" min="1" max="500">
+                                <small>Smallest bubble size</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="maxRadius">Max Radius (px)</label>
+                                <input type="number" id="maxRadius" value="80" min="1" max="800">
+                                <small>Largest bubble size</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="bubbleStyle">Bubble Style</label>
+                                <select id="bubbleStyle">
+                                    <option value="filled" selected>Filled</option>
+                                    <option value="outline">Outline</option>
+                                    <option value="random">Random</option>
+                                </select>
+                                <small>Filled, outline, or mixed</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="strokeWidth">Outline Width (px)</label>
+                                <input type="number" id="strokeWidth" value="2" min="1" max="20">
+                                <small>Stroke thickness for outlines</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="overlapMode">Overlap Mode</label>
+                                <select id="overlapMode">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="add">Additive</option>
+                                    <option value="subtract">Subtract</option>
+                                    <option value="intersect">Intersect</option>
+                                    <option value="random">Random Per Bubble</option>
+                                </select>
+                                <small>Blend style for overlapping bubbles</small>
+                            </div>
+                        </div>
                     </div>
-                    <small>Add text overlays with custom placement, size, font, and shadow styles</small>
-                </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Animation</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="animateBubbles">Animate Bubbles</label>
+                                <input type="checkbox" id="animateBubbles">
+                                <small>Enable gentle motion with wall bounces</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="bubbleSpeed">Bubble Speed (px/sec)</label>
+                                <input type="number" id="bubbleSpeed" value="40" min="0" max="300" step="1">
+                                <small>Speed for animated bubbles</small>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#0b0f1a">
+                            <small>Canvas background color</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Custom Color Scheme</label>
+                            <div id="colorInputs" class="color-inputs">
+                                <div class="color-input-group">
+                                    <input type="color" value="#FF6B6B">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#FECA57">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#54A0FF">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#5F27CD">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#1DD1A1">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                            </div>
+                            <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                                <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                                <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                            </div>
+                            <small>Colors used for bubbles</small>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Text Overlays</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <div id="textOverlayList" class="text-overlay-list"></div>
+                            <div class="text-overlay-actions">
+                                <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                            </div>
+                            <small>Add text overlays with custom placement, size, font, and shadow styles</small>
+                        </div>
+                    </div>
+                </details>
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>

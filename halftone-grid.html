@@ -20,108 +20,129 @@
             </div>
 
             <div class="controls-panel">
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1920" min="200" max="4000">
-                        <small>Width of the canvas in pixels</small>
-                    </div>
+                <details class="control-section">
+                    <summary>Basics</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="displayWidth">Canvas Width (px)</label>
+                                <input type="number" id="displayWidth" value="1920" min="200" max="4000">
+                                <small>Width of the canvas in pixels</small>
+                            </div>
 
-                    <div class="control-group">
-                        <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="1080" min="200" max="4000">
-                        <small>Height of the canvas in pixels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="spacing">Dot Spacing (px)</label>
-                        <input type="number" id="spacing" value="26" min="6" max="120">
-                        <small>Distance between dot centers</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="minRadius">Min Radius (px)</label>
-                        <input type="number" id="minRadius" value="2" min="1" max="30">
-                        <small>Smallest dot size</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="maxRadius">Max Radius (px)</label>
-                        <input type="number" id="maxRadius" value="14" min="2" max="60">
-                        <small>Largest dot size</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="noiseScale">Noise Scale</label>
-                        <input type="number" id="noiseScale" value="0.012" min="0.001" max="0.05" step="0.001">
-                        <small>Controls variation frequency</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="patternMode">Pattern Mode</label>
-                        <select id="patternMode">
-                            <option value="noise" selected>Noise</option>
-                            <option value="radial">Radial</option>
-                            <option value="wave">Wave</option>
-                        </select>
-                        <small>How dot sizes are distributed</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="dotShape">Dot Shape</label>
-                        <select id="dotShape">
-                            <option value="circle" selected>Circle</option>
-                            <option value="square">Square</option>
-                        </select>
-                        <small>Geometry of each dot</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="backgroundColor">Background Color</label>
-                        <input type="color" id="backgroundColor" value="#0f172a">
-                        <small>Canvas background color</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Custom Color Scheme</label>
-                    <div id="colorInputs" class="color-inputs">
-                        <div class="color-input-group">
-                            <input type="color" value="#f9a8d4">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#facc15">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#38bdf8">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#a78bfa">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#34d399">
-                            <button type="button" class="remove-color">Remove</button>
+                            <div class="control-group">
+                                <label for="displayHeight">Canvas Height (px)</label>
+                                <input type="number" id="displayHeight" value="1080" min="200" max="4000">
+                                <small>Height of the canvas in pixels</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
-                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
-                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
-                    </div>
-                    <small>Palette used for dot fills</small>
-                </div>
+                </details>
 
-                <div class="control-group">
-                    <label>Text Overlays</label>
-                    <div id="textOverlayList" class="text-overlay-list"></div>
-                    <div class="text-overlay-actions">
-                        <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                <details class="control-section" open>
+                    <summary>Halftone Grid</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="spacing">Dot Spacing (px)</label>
+                                <input type="number" id="spacing" value="26" min="6" max="120">
+                                <small>Distance between dot centers</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="minRadius">Min Radius (px)</label>
+                                <input type="number" id="minRadius" value="2" min="1" max="30">
+                                <small>Smallest dot size</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="maxRadius">Max Radius (px)</label>
+                                <input type="number" id="maxRadius" value="14" min="2" max="60">
+                                <small>Largest dot size</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="noiseScale">Noise Scale</label>
+                                <input type="number" id="noiseScale" value="0.012" min="0.001" max="0.05" step="0.001">
+                                <small>Controls variation frequency</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="patternMode">Pattern Mode</label>
+                                <select id="patternMode">
+                                    <option value="noise" selected>Noise</option>
+                                    <option value="radial">Radial</option>
+                                    <option value="wave">Wave</option>
+                                </select>
+                                <small>How dot sizes are distributed</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="dotShape">Dot Shape</label>
+                                <select id="dotShape">
+                                    <option value="circle" selected>Circle</option>
+                                    <option value="square">Square</option>
+                                </select>
+                                <small>Geometry of each dot</small>
+                            </div>
+                        </div>
                     </div>
-                    <small>Add text overlays with custom placement, size, font, and shadow styles</small>
-                </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#0f172a">
+                            <small>Canvas background color</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Custom Color Scheme</label>
+                            <div id="colorInputs" class="color-inputs">
+                                <div class="color-input-group">
+                                    <input type="color" value="#f9a8d4">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#facc15">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#38bdf8">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#a78bfa">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#34d399">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                            </div>
+                            <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                                <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                                <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                            </div>
+                            <small>Palette used for dot fills</small>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Text Overlays</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <div id="textOverlayList" class="text-overlay-list"></div>
+                            <div class="text-overlay-actions">
+                                <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                            </div>
+                            <small>Add text overlays with custom placement, size, font, and shadow styles</small>
+                        </div>
+                    </div>
+                </details>
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>

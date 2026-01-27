@@ -20,158 +20,180 @@
             </div>
 
             <div class="controls-panel">
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1920" min="100" max="2000">
-                        <small>Width of the canvas in pixels</small>
+                <details class="control-section">
+                    <summary>Basics</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="displayWidth">Canvas Width (px)</label>
+                                <input type="number" id="displayWidth" value="1920" min="100" max="2000">
+                                <small>Width of the canvas in pixels</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="displayHeight">Canvas Height (px)</label>
+                                <input type="number" id="displayHeight" value="1080" min="100" max="2000">
+                                <small>Height of the canvas in pixels</small>
+                            </div>
+                        </div>
                     </div>
+                </details>
 
-                    <div class="control-group">
-                        <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="1080" min="100" max="2000">
-                        <small>Height of the canvas in pixels</small>
+                <details class="control-section" open>
+                    <summary>Diagonal Lines</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="gridSize">Grid Size (px)</label>
+                                <input type="number" id="gridSize" value="20" min="5" max="100">
+                                <small>Size of each grid square</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="strokeWidth">Line Width (px)</label>
+                                <input type="number" id="strokeWidth" value="4" min="1" max="20">
+                                <small>Width of the diagonal lines</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineJitter">Line Jitter (px)</label>
+                                <input type="number" id="lineJitter" value="0" min="0" max="20" step="1">
+                                <small>Random offset for line endpoints</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineGlow">Line Glow (px)</label>
+                                <input type="number" id="lineGlow" value="0" min="0" max="30" step="1">
+                                <small>Soft glow around diagonal lines</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineBias">Slash Bias (%)</label>
+                                <input type="number" id="lineBias" value="50" min="0" max="100" step="1">
+                                <small>0 = all \\, 100 = all /</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineColor">Line Color</label>
+                                <input type="color" id="lineColor" value="#111111">
+                                <small>Stroke color for diagonals</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="fillColor">Fill Color</label>
+                                <input type="color" id="fillColor" value="#111111">
+                                <small>Fill color for diamonds</small>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="fillSquares">
+                                <input type="checkbox" id="fillSquares" checked>
+                                Fill Diamond Patterns
+                            </label>
+                            <small>Automatically fill diamond shapes formed by the lines</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="showPathfinders">
+                                <input type="checkbox" id="showPathfinders">
+                                Show Pathfinders
+                            </label>
+                            <small>Trace paths from edge white spaces</small>
+                        </div>
+
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="pathfinderMode">Pathfinder Display</label>
+                                <select id="pathfinderMode">
+                                    <option value="all">Show All Paths</option>
+                                    <option value="longest" selected>Show Longest Path</option>
+                                </select>
+                                <small>Choose how many paths to draw</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="pathfinderColor">Path Color</label>
+                                <input type="color" id="pathfinderColor" value="#FF6B6B">
+                                <small>Stroke color for path overlays</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="pathfinderStyle">Path Style</label>
+                                <select id="pathfinderStyle">
+                                    <option value="jagged" selected>Jagged</option>
+                                    <option value="smooth">Smooth Spline</option>
+                                </select>
+                                <small>Draw straight segments or a smoothed curve</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="pathfinderWidth">Path Width (px)</label>
+                                <input type="number" id="pathfinderWidth" value="2" min="1" max="10">
+                                <small>Thickness of path lines</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="pathfinderMinLength">Minimum Path Length</label>
+                                <input type="number" id="pathfinderMinLength" value="3" min="1" max="500">
+                                <small>Ignore paths shorter than this many segments</small>
+                            </div>
+                        </div>
                     </div>
+                </details>
 
-                    <div class="control-group">
-                        <label for="gridSize">Grid Size (px)</label>
-                        <input type="number" id="gridSize" value="20" min="5" max="100">
-                        <small>Size of each grid square</small>
+                <details class="control-section">
+                    <summary>Animation</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="animationMode">Animation Mode</label>
+                                <select id="animationMode">
+                                    <option value="none" selected>None</option>
+                                    <option value="longestPath">Watch Longest Path</option>
+                                    <option value="elimination">Elimination Mode</option>
+                                </select>
+                                <small>Animate the pathfinder visualization</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="animationSpeed">Animation Speed (fps)</label>
+                                <input type="number" id="animationSpeed" value="30" min="1" max="120">
+                                <small>Frames per second for animation</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="exportDuration">Export Duration (s)</label>
+                                <input type="number" id="exportDuration" value="5" min="1" max="60">
+                                <small>Length of exported GIF/WebM</small>
+                            </div>
+                        </div>
                     </div>
+                </details>
 
-                    <div class="control-group">
-                        <label for="strokeWidth">Line Width (px)</label>
-                        <input type="number" id="strokeWidth" value="4" min="1" max="20">
-                        <small>Width of the diagonal lines</small>
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#ffffff">
+                            <small>Canvas background fill</small>
+                        </div>
                     </div>
-                </div>
+                </details>
 
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="lineJitter">Line Jitter (px)</label>
-                        <input type="number" id="lineJitter" value="0" min="0" max="20" step="1">
-                        <small>Random offset for line endpoints</small>
+                <details class="control-section">
+                    <summary>Text Overlays</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <div id="textOverlayList" class="text-overlay-list"></div>
+                            <div class="text-overlay-actions">
+                                <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                            </div>
+                            <small>Add text overlays with custom placement, size, font, and shadow styles</small>
+                        </div>
                     </div>
-
-                    <div class="control-group">
-                        <label for="lineGlow">Line Glow (px)</label>
-                        <input type="number" id="lineGlow" value="0" min="0" max="30" step="1">
-                        <small>Soft glow around diagonal lines</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="lineBias">Slash Bias (%)</label>
-                        <input type="number" id="lineBias" value="50" min="0" max="100" step="1">
-                        <small>0 = all \\, 100 = all /</small>
-                    </div>
-                </div>
-
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="backgroundColor">Background Color</label>
-                        <input type="color" id="backgroundColor" value="#ffffff">
-                        <small>Canvas background fill</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="lineColor">Line Color</label>
-                        <input type="color" id="lineColor" value="#111111">
-                        <small>Stroke color for diagonals</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="fillColor">Fill Color</label>
-                        <input type="color" id="fillColor" value="#111111">
-                        <small>Fill color for diamonds</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label for="fillSquares">
-                        <input type="checkbox" id="fillSquares" checked>
-                        Fill Diamond Patterns
-                    </label>
-                    <small>Automatically fill diamond shapes formed by the lines</small>
-                </div>
-
-                <div class="control-group">
-                    <label for="showPathfinders">
-                        <input type="checkbox" id="showPathfinders">
-                        Show Pathfinders
-                    </label>
-                    <small>Trace paths from edge white spaces</small>
-                </div>
-
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="pathfinderMode">Pathfinder Display</label>
-                        <select id="pathfinderMode">
-                            <option value="all">Show All Paths</option>
-                            <option value="longest" selected>Show Longest Path</option>
-                        </select>
-                        <small>Choose how many paths to draw</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="pathfinderColor">Path Color</label>
-                        <input type="color" id="pathfinderColor" value="#FF6B6B">
-                        <small>Stroke color for path overlays</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="pathfinderStyle">Path Style</label>
-                        <select id="pathfinderStyle">
-                            <option value="jagged" selected>Jagged</option>
-                            <option value="smooth">Smooth Spline</option>
-                        </select>
-                        <small>Draw straight segments or a smoothed curve</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="pathfinderWidth">Path Width (px)</label>
-                        <input type="number" id="pathfinderWidth" value="2" min="1" max="10">
-                        <small>Thickness of path lines</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="pathfinderMinLength">Minimum Path Length</label>
-                        <input type="number" id="pathfinderMinLength" value="3" min="1" max="500">
-                        <small>Ignore paths shorter than this many segments</small>
-                    </div>
-                </div>
-
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="animationMode">Animation Mode</label>
-                        <select id="animationMode">
-                            <option value="none" selected>None</option>
-                            <option value="longestPath">Watch Longest Path</option>
-                            <option value="elimination">Elimination Mode</option>
-                        </select>
-                        <small>Animate the pathfinder visualization</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="animationSpeed">Animation Speed (fps)</label>
-                        <input type="number" id="animationSpeed" value="30" min="1" max="120">
-                        <small>Frames per second for animation</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="exportDuration">Export Duration (s)</label>
-                        <input type="number" id="exportDuration" value="5" min="1" max="60">
-                        <small>Length of exported GIF/WebM</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Text Overlays</label>
-                    <div id="textOverlayList" class="text-overlay-list"></div>
-                    <div class="text-overlay-actions">
-                        <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
-                    </div>
-                    <small>Add text overlays with custom placement, size, font, and shadow styles</small>
-                </div>
+                </details>
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>

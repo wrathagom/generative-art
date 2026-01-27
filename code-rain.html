@@ -20,103 +20,129 @@
             </div>
 
             <div class="controls-panel">
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1920" min="100" max="4000">
-                        <small>Width of the canvas in pixels</small>
-                    </div>
+                <details class="control-section">
+                    <summary>Basics</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="displayWidth">Canvas Width (px)</label>
+                                <input type="number" id="displayWidth" value="1920" min="100" max="4000">
+                                <small>Width of the canvas in pixels</small>
+                            </div>
 
-                    <div class="control-group">
-                        <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="1080" min="100" max="4000">
-                        <small>Height of the canvas in pixels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="fontSize">Font Size (px)</label>
-                        <input type="number" id="fontSize" value="18" min="8" max="64">
-                        <small>Size of the falling glyphs</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="speed">Frame Delay (ms)</label>
-                        <input type="number" id="speed" value="40" min="10" max="200">
-                        <small>Lower values move faster</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="trailOpacity">Trail Opacity</label>
-                        <input type="number" id="trailOpacity" value="0.08" min="0.01" max="0.3" step="0.01">
-                        <small>Higher values shorten trails</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="density">Density</label>
-                        <input type="number" id="density" value="0.6" min="0.05" max="3" step="0.05">
-                        <small>Higher values draw more glyphs per column</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="glyphs">Glyph Set</label>
-                        <input type="text" id="glyphs" value="01アイウエオカキクケコサシスセソ">
-                        <small>Characters to use in the rain</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="backgroundColor">Background Color</label>
-                        <input type="color" id="backgroundColor" value="#040a06">
-                        <small>Canvas background color</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="textColor">Text Color</label>
-                        <input type="color" id="textColor" value="#6dff7a">
-                        <small>Used when only one color is provided</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Custom Color Scheme</label>
-                    <div id="colorInputs" class="color-inputs">
-                        <div class="color-input-group">
-                            <input type="color" value="#6DFF7A">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#3DDC84">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#00B894">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#00CEC9">
-                            <button type="button" class="remove-color">Remove</button>
+                            <div class="control-group">
+                                <label for="displayHeight">Canvas Height (px)</label>
+                                <input type="number" id="displayHeight" value="1080" min="100" max="4000">
+                                <small>Height of the canvas in pixels</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
-                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
-                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
-                    </div>
-                    <small>Colors used when palette mode is selected</small>
-                </div>
+                </details>
 
-                <div class="control-group">
-                    <label>Text Overlays</label>
-                    <div id="textOverlayList" class="text-overlay-list"></div>
-                    <div class="text-overlay-actions">
-                        <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
-                    </div>
-                    <small>Add text overlays with custom placement, size, font, and shadow styles</small>
-                </div>
+                <details class="control-section" open>
+                    <summary>Code Rain</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="fontSize">Font Size (px)</label>
+                                <input type="number" id="fontSize" value="18" min="8" max="64">
+                                <small>Size of the falling glyphs</small>
+                            </div>
 
-                <div class="control-group">
-                    <label for="exportDuration">Export Duration (seconds)</label>
-                    <input type="number" id="exportDuration" value="5" min="1" max="20" step="1">
-                    <small>Used for GIF or video exports</small>
-                </div>
+                            <div class="control-group">
+                                <label for="speed">Frame Delay (ms)</label>
+                                <input type="number" id="speed" value="40" min="10" max="200">
+                                <small>Lower values move faster</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="trailOpacity">Trail Opacity</label>
+                                <input type="number" id="trailOpacity" value="0.08" min="0.01" max="0.3" step="0.01">
+                                <small>Higher values shorten trails</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="density">Density</label>
+                                <input type="number" id="density" value="0.6" min="0.05" max="3" step="0.05">
+                                <small>Higher values draw more glyphs per column</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="glyphs">Glyph Set</label>
+                                <input type="text" id="glyphs" value="01アイウエオカキクケコサシスセソ">
+                                <small>Characters to use in the rain</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="textColor">Text Color</label>
+                                <input type="color" id="textColor" value="#6dff7a">
+                                <small>Used when only one color is provided</small>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Animation</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="exportDuration">Export Duration (seconds)</label>
+                            <input type="number" id="exportDuration" value="5" min="1" max="20" step="1">
+                            <small>Used for GIF or video exports</small>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#040a06">
+                            <small>Canvas background color</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Custom Color Scheme</label>
+                            <div id="colorInputs" class="color-inputs">
+                                <div class="color-input-group">
+                                    <input type="color" value="#6DFF7A">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#3DDC84">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#00B894">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#00CEC9">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                            </div>
+                            <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                                <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                                <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                            </div>
+                            <small>Colors used when palette mode is selected</small>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Text Overlays</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <div id="textOverlayList" class="text-overlay-list"></div>
+                            <div class="text-overlay-actions">
+                                <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                            </div>
+                            <small>Add text overlays with custom placement, size, font, and shadow styles</small>
+                        </div>
+                    </div>
+                </details>
 
                 <div class="button-group">
                     <button id="generateButton">Generate</button>

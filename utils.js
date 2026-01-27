@@ -175,108 +175,142 @@ function createTextOverlayCard(data = {}) {
             <input type="text" class="text-overlay-text" value="${escapeHtml(overlay.text)}" placeholder="Overlay text">
             <button type="button" class="text-overlay-remove">Remove</button>
         </div>
-        <div class="text-overlay-grid">
-            <div class="text-overlay-field">
-                <label>Position X (%)</label>
-                <input type="number" class="text-overlay-x" min="0" max="100" step="0.1" value="${overlay.x}">
+
+        <div class="text-overlay-group">
+            <div class="text-overlay-group-title">Position & Size</div>
+            <div class="text-overlay-grid">
+                <div class="text-overlay-field">
+                    <label>Position X (%)</label>
+                    <input type="number" class="text-overlay-x" min="0" max="100" step="0.1" value="${overlay.x}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Position Y (%)</label>
+                    <input type="number" class="text-overlay-y" min="0" max="100" step="0.1" value="${overlay.y}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Size (px)</label>
+                    <input type="number" class="text-overlay-size" min="6" max="400" step="1" value="${overlay.size}">
+                </div>
             </div>
-            <div class="text-overlay-field">
-                <label>Position Y (%)</label>
-                <input type="number" class="text-overlay-y" min="0" max="100" step="0.1" value="${overlay.y}">
+        </div>
+
+        <div class="text-overlay-group">
+            <div class="text-overlay-group-title">Font</div>
+            <div class="text-overlay-grid">
+                <div class="text-overlay-field">
+                    <label>Family</label>
+                    <select class="text-overlay-font">
+                        <option value="Georgia, &quot;Times New Roman&quot;, serif"${overlay.fontFamily === 'Georgia, "Times New Roman", serif' ? ' selected' : ''}>Georgia</option>
+                        <option value="&quot;Times New Roman&quot;, serif"${overlay.fontFamily === '"Times New Roman", serif' ? ' selected' : ''}>Times New Roman</option>
+                        <option value="Arial, sans-serif"${overlay.fontFamily === 'Arial, sans-serif' ? ' selected' : ''}>Arial</option>
+                        <option value="&quot;Trebuchet MS&quot;, sans-serif"${overlay.fontFamily === '"Trebuchet MS", sans-serif' ? ' selected' : ''}>Trebuchet MS</option>
+                        <option value="&quot;Courier New&quot;, monospace"${overlay.fontFamily === '"Courier New", monospace' ? ' selected' : ''}>Courier New</option>
+                        <option value="&quot;Lucida Console&quot;, monospace"${overlay.fontFamily === '"Lucida Console", monospace' ? ' selected' : ''}>Lucida Console</option>
+                        <option value="&quot;Palatino Linotype&quot;, serif"${overlay.fontFamily === '"Palatino Linotype", serif' ? ' selected' : ''}>Palatino Linotype</option>
+                        <option value="Impact, sans-serif"${overlay.fontFamily === 'Impact, sans-serif' ? ' selected' : ''}>Impact</option>
+                    </select>
+                </div>
+                <div class="text-overlay-field">
+                    <label>Style</label>
+                    <select class="text-overlay-style">
+                        <option value="normal"${overlay.fontStyle === 'normal' ? ' selected' : ''}>Normal</option>
+                        <option value="italic"${overlay.fontStyle === 'italic' ? ' selected' : ''}>Italic</option>
+                    </select>
+                </div>
+                <div class="text-overlay-field">
+                    <label>Weight</label>
+                    <select class="text-overlay-weight">
+                        <option value="300"${overlay.fontWeight === '300' ? ' selected' : ''}>Light</option>
+                        <option value="400"${overlay.fontWeight === '400' ? ' selected' : ''}>Regular</option>
+                        <option value="600"${overlay.fontWeight === '600' ? ' selected' : ''}>Semibold</option>
+                        <option value="700"${overlay.fontWeight === '700' ? ' selected' : ''}>Bold</option>
+                        <option value="900"${overlay.fontWeight === '900' ? ' selected' : ''}>Black</option>
+                    </select>
+                </div>
             </div>
-            <div class="text-overlay-field">
-                <label>Size (px)</label>
-                <input type="number" class="text-overlay-size" min="6" max="400" step="1" value="${overlay.size}">
+        </div>
+
+        <div class="text-overlay-group">
+            <div class="text-overlay-group-title">Alignment</div>
+            <div class="text-overlay-grid">
+                <div class="text-overlay-field">
+                    <label>Align</label>
+                    <select class="text-overlay-align">
+                        <option value="left"${overlay.align === 'left' ? ' selected' : ''}>Left</option>
+                        <option value="center"${overlay.align === 'center' ? ' selected' : ''}>Center</option>
+                        <option value="right"${overlay.align === 'right' ? ' selected' : ''}>Right</option>
+                    </select>
+                </div>
+                <div class="text-overlay-field">
+                    <label>Baseline</label>
+                    <select class="text-overlay-baseline">
+                        <option value="top"${overlay.baseline === 'top' ? ' selected' : ''}>Top</option>
+                        <option value="middle"${overlay.baseline === 'middle' ? ' selected' : ''}>Middle</option>
+                        <option value="bottom"${overlay.baseline === 'bottom' ? ' selected' : ''}>Bottom</option>
+                    </select>
+                </div>
             </div>
-            <div class="text-overlay-field">
-                <label>Font Family</label>
-                <select class="text-overlay-font">
-                    <option value="Georgia, &quot;Times New Roman&quot;, serif"${overlay.fontFamily === 'Georgia, "Times New Roman", serif' ? ' selected' : ''}>Georgia</option>
-                    <option value="&quot;Times New Roman&quot;, serif"${overlay.fontFamily === '"Times New Roman", serif' ? ' selected' : ''}>Times New Roman</option>
-                    <option value="Arial, sans-serif"${overlay.fontFamily === 'Arial, sans-serif' ? ' selected' : ''}>Arial</option>
-                    <option value="&quot;Trebuchet MS&quot;, sans-serif"${overlay.fontFamily === '"Trebuchet MS", sans-serif' ? ' selected' : ''}>Trebuchet MS</option>
-                    <option value="&quot;Courier New&quot;, monospace"${overlay.fontFamily === '"Courier New", monospace' ? ' selected' : ''}>Courier New</option>
-                    <option value="&quot;Lucida Console&quot;, monospace"${overlay.fontFamily === '"Lucida Console", monospace' ? ' selected' : ''}>Lucida Console</option>
-                    <option value="&quot;Palatino Linotype&quot;, serif"${overlay.fontFamily === '"Palatino Linotype", serif' ? ' selected' : ''}>Palatino Linotype</option>
-                    <option value="Impact, sans-serif"${overlay.fontFamily === 'Impact, sans-serif' ? ' selected' : ''}>Impact</option>
-                </select>
+        </div>
+
+        <div class="text-overlay-group">
+            <div class="text-overlay-group-title">Fill</div>
+            <div class="text-overlay-grid">
+                <div class="text-overlay-field">
+                    <label>Color</label>
+                    <input type="color" class="text-overlay-color" value="${overlay.color}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Opacity</label>
+                    <input type="number" class="text-overlay-opacity" min="0" max="1" step="0.05" value="${overlay.opacity}">
+                </div>
             </div>
-            <div class="text-overlay-field">
-                <label>Font Style</label>
-                <select class="text-overlay-style">
-                    <option value="normal"${overlay.fontStyle === 'normal' ? ' selected' : ''}>Normal</option>
-                    <option value="italic"${overlay.fontStyle === 'italic' ? ' selected' : ''}>Italic</option>
-                </select>
+        </div>
+
+        <div class="text-overlay-group">
+            <div class="text-overlay-group-title">Border</div>
+            <div class="text-overlay-grid">
+                <div class="text-overlay-field">
+                    <label>Color</label>
+                    <input type="color" class="text-overlay-border-color" value="${overlay.borderColor}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Width</label>
+                    <input type="number" class="text-overlay-border-width" min="0" max="20" step="1" value="${overlay.borderWidth}">
+                </div>
             </div>
-            <div class="text-overlay-field">
-                <label>Font Weight</label>
-                <select class="text-overlay-weight">
-                    <option value="300"${overlay.fontWeight === '300' ? ' selected' : ''}>Light</option>
-                    <option value="400"${overlay.fontWeight === '400' ? ' selected' : ''}>Regular</option>
-                    <option value="600"${overlay.fontWeight === '600' ? ' selected' : ''}>Semibold</option>
-                    <option value="700"${overlay.fontWeight === '700' ? ' selected' : ''}>Bold</option>
-                    <option value="900"${overlay.fontWeight === '900' ? ' selected' : ''}>Black</option>
-                </select>
-            </div>
-            <div class="text-overlay-field">
-                <label>Align</label>
-                <select class="text-overlay-align">
-                    <option value="left"${overlay.align === 'left' ? ' selected' : ''}>Left</option>
-                    <option value="center"${overlay.align === 'center' ? ' selected' : ''}>Center</option>
-                    <option value="right"${overlay.align === 'right' ? ' selected' : ''}>Right</option>
-                </select>
-            </div>
-            <div class="text-overlay-field">
-                <label>Baseline</label>
-                <select class="text-overlay-baseline">
-                    <option value="top"${overlay.baseline === 'top' ? ' selected' : ''}>Top</option>
-                    <option value="middle"${overlay.baseline === 'middle' ? ' selected' : ''}>Middle</option>
-                    <option value="bottom"${overlay.baseline === 'bottom' ? ' selected' : ''}>Bottom</option>
-                </select>
-            </div>
-            <div class="text-overlay-field">
-                <label>Fill Color</label>
-                <input type="color" class="text-overlay-color" value="${overlay.color}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Opacity</label>
-                <input type="number" class="text-overlay-opacity" min="0" max="1" step="0.05" value="${overlay.opacity}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Border Color</label>
-                <input type="color" class="text-overlay-border-color" value="${overlay.borderColor}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Border Width</label>
-                <input type="number" class="text-overlay-border-width" min="0" max="20" step="1" value="${overlay.borderWidth}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Appearance</label>
-                <select class="text-overlay-appearance">
-                    <option value="solid"${overlay.appearance === 'solid' ? ' selected' : ''}>Solid</option>
-                    <option value="drop-shadow"${overlay.appearance === 'drop-shadow' ? ' selected' : ''}>Drop Shadow</option>
-                    <option value="inner-shadow"${overlay.appearance === 'inner-shadow' ? ' selected' : ''}>Inner Shadow</option>
-                </select>
-            </div>
-            <div class="text-overlay-field">
-                <label>Shadow Color</label>
-                <input type="color" class="text-overlay-shadow-color" value="${overlay.shadowColor}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Shadow Opacity</label>
-                <input type="number" class="text-overlay-shadow-opacity" min="0" max="1" step="0.05" value="${overlay.shadowOpacity}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Shadow Blur</label>
-                <input type="number" class="text-overlay-shadow-blur" min="0" max="60" step="1" value="${overlay.shadowBlur}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Shadow Offset X</label>
-                <input type="number" class="text-overlay-shadow-offset-x" min="-100" max="100" step="1" value="${overlay.shadowOffsetX}">
-            </div>
-            <div class="text-overlay-field">
-                <label>Shadow Offset Y</label>
-                <input type="number" class="text-overlay-shadow-offset-y" min="-100" max="100" step="1" value="${overlay.shadowOffsetY}">
+        </div>
+
+        <div class="text-overlay-group">
+            <div class="text-overlay-group-title">Shadow</div>
+            <div class="text-overlay-grid">
+                <div class="text-overlay-field">
+                    <label>Appearance</label>
+                    <select class="text-overlay-appearance">
+                        <option value="solid"${overlay.appearance === 'solid' ? ' selected' : ''}>Solid</option>
+                        <option value="drop-shadow"${overlay.appearance === 'drop-shadow' ? ' selected' : ''}>Drop Shadow</option>
+                        <option value="inner-shadow"${overlay.appearance === 'inner-shadow' ? ' selected' : ''}>Inner Shadow</option>
+                    </select>
+                </div>
+                <div class="text-overlay-field">
+                    <label>Color</label>
+                    <input type="color" class="text-overlay-shadow-color" value="${overlay.shadowColor}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Opacity</label>
+                    <input type="number" class="text-overlay-shadow-opacity" min="0" max="1" step="0.05" value="${overlay.shadowOpacity}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Blur</label>
+                    <input type="number" class="text-overlay-shadow-blur" min="0" max="60" step="1" value="${overlay.shadowBlur}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Offset X</label>
+                    <input type="number" class="text-overlay-shadow-offset-x" min="-100" max="100" step="1" value="${overlay.shadowOffsetX}">
+                </div>
+                <div class="text-overlay-field">
+                    <label>Offset Y</label>
+                    <input type="number" class="text-overlay-shadow-offset-y" min="-100" max="100" step="1" value="${overlay.shadowOffsetY}">
+                </div>
             </div>
         </div>
     `;

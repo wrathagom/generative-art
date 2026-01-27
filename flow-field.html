@@ -20,124 +20,152 @@
             </div>
 
             <div class="controls-panel">
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1920" min="200" max="4000">
-                        <small>Width of the canvas in pixels</small>
-                    </div>
+                <details class="control-section">
+                    <summary>Basics</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="displayWidth">Canvas Width (px)</label>
+                                <input type="number" id="displayWidth" value="1920" min="200" max="4000">
+                                <small>Width of the canvas in pixels</small>
+                            </div>
 
-                    <div class="control-group">
-                        <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="1080" min="200" max="4000">
-                        <small>Height of the canvas in pixels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="particleCount">Particle Count</label>
-                        <input type="number" id="particleCount" value="900" min="50" max="4000">
-                        <small>Number of traces drawn across the field</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="steps">Steps per Particle</label>
-                        <input type="number" id="steps" value="120" min="20" max="400">
-                        <small>How long each ribbon travels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="stepSize">Step Size (px)</label>
-                        <input type="number" id="stepSize" value="6" min="1" max="20">
-                        <small>Distance moved each step</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="fieldScale">Field Scale</label>
-                        <input type="number" id="fieldScale" value="0.004" min="0.001" max="0.02" step="0.001">
-                        <small>Higher values produce tighter curls</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="lineWidth">Line Width (px)</label>
-                        <input type="number" id="lineWidth" value="1" min="1" max="6">
-                        <small>Stroke thickness for paths</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="lineOpacity">Line Opacity</label>
-                        <input type="number" id="lineOpacity" value="0.7" min="0.1" max="1" step="0.05">
-                        <small>Opacity per ribbon</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="backgroundColor">Background Color</label>
-                        <input type="color" id="backgroundColor" value="#0f172a">
-                        <small>Canvas background color</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="animationMode">Animation</label>
-                        <select id="animationMode">
-                            <option value="none">None</option>
-                            <option value="allGrow">All Paths Grow Together</option>
-                            <option value="sequential">Sequential Paths</option>
-                            <option value="staggered">Staggered Growth</option>
-                        </select>
-                        <small>How paths are drawn on canvas</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="animationSpeed">Animation Speed</label>
-                        <input type="number" id="animationSpeed" value="30" min="1" max="120">
-                        <small>Frames per second for animation</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="exportDuration">Export Duration (s)</label>
-                        <input type="number" id="exportDuration" value="5" min="1" max="30" step="1">
-                        <small>Duration for GIF/video export</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Custom Color Scheme</label>
-                    <div id="colorInputs" class="color-inputs">
-                        <div class="color-input-group">
-                            <input type="color" value="#38bdf8">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#f97316">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#f43f5e">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#22c55e">
-                            <button type="button" class="remove-color">Remove</button>
-                        </div>
-                        <div class="color-input-group">
-                            <input type="color" value="#eab308">
-                            <button type="button" class="remove-color">Remove</button>
+                            <div class="control-group">
+                                <label for="displayHeight">Canvas Height (px)</label>
+                                <input type="number" id="displayHeight" value="1080" min="200" max="4000">
+                                <small>Height of the canvas in pixels</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="color-action-buttons" style="margin-top: 0.5rem;">
-                        <button type="button" class="add-color" id="addColorButton">Add Color</button>
-                        <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
-                    </div>
-                    <small>Colors used for the flow ribbons</small>
-                </div>
+                </details>
 
-                <div class="control-group">
-                    <label>Text Overlays</label>
-                    <div id="textOverlayList" class="text-overlay-list"></div>
-                    <div class="text-overlay-actions">
-                        <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                <details class="control-section" open>
+                    <summary>Flow Field</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="particleCount">Particle Count</label>
+                                <input type="number" id="particleCount" value="900" min="50" max="4000">
+                                <small>Number of traces drawn across the field</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="steps">Steps per Particle</label>
+                                <input type="number" id="steps" value="120" min="20" max="400">
+                                <small>How long each ribbon travels</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="stepSize">Step Size (px)</label>
+                                <input type="number" id="stepSize" value="6" min="1" max="20">
+                                <small>Distance moved each step</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="fieldScale">Field Scale</label>
+                                <input type="number" id="fieldScale" value="0.004" min="0.001" max="0.02" step="0.001">
+                                <small>Higher values produce tighter curls</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineWidth">Line Width (px)</label>
+                                <input type="number" id="lineWidth" value="1" min="1" max="6">
+                                <small>Stroke thickness for paths</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineOpacity">Line Opacity</label>
+                                <input type="number" id="lineOpacity" value="0.7" min="0.1" max="1" step="0.05">
+                                <small>Opacity per ribbon</small>
+                            </div>
+                        </div>
                     </div>
-                    <small>Add text overlays with custom placement, size, font, and shadow styles</small>
-                </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Animation</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="animationMode">Animation</label>
+                                <select id="animationMode">
+                                    <option value="none">None</option>
+                                    <option value="allGrow">All Paths Grow Together</option>
+                                    <option value="sequential">Sequential Paths</option>
+                                    <option value="staggered">Staggered Growth</option>
+                                </select>
+                                <small>How paths are drawn on canvas</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="animationSpeed">Animation Speed</label>
+                                <input type="number" id="animationSpeed" value="30" min="1" max="120">
+                                <small>Frames per second for animation</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="exportDuration">Export Duration (s)</label>
+                                <input type="number" id="exportDuration" value="5" min="1" max="30" step="1">
+                                <small>Duration for GIF/video export</small>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#0f172a">
+                            <small>Canvas background color</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Custom Color Scheme</label>
+                            <div id="colorInputs" class="color-inputs">
+                                <div class="color-input-group">
+                                    <input type="color" value="#38bdf8">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#f97316">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#f43f5e">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#22c55e">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                                <div class="color-input-group">
+                                    <input type="color" value="#eab308">
+                                    <button type="button" class="remove-color">Remove</button>
+                                </div>
+                            </div>
+                            <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                                <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                                <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                            </div>
+                            <small>Colors used for the flow ribbons</small>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Text Overlays</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <div id="textOverlayList" class="text-overlay-list"></div>
+                            <div class="text-overlay-actions">
+                                <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                            </div>
+                            <small>Add text overlays with custom placement, size, font, and shadow styles</small>
+                        </div>
+                    </div>
+                </details>
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>

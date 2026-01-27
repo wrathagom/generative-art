@@ -820,6 +820,64 @@ canvas {
     opacity: 1;
 }
 
+/* Collapsible sections */
+.control-section {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.control-section summary {
+    padding: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface-bg);
+    border-radius: 6px;
+    list-style: none;
+}
+
+.control-section summary::-webkit-details-marker {
+    display: none;
+}
+
+.control-section summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.control-section[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.control-section[open] summary {
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 6px 6px 0 0;
+}
+
+.control-section-content {
+    padding: 1rem;
+}
+
+/* Text overlay sub-groups */
+.text-overlay-group {
+    margin-bottom: 1rem;
+}
+
+.text-overlay-group:last-child {
+    margin-bottom: 0;
+}
+
+.text-overlay-group-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--muted-text);
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
 @media (max-width: 768px) {
     .grid-layout {
         grid-template-columns: 1fr;

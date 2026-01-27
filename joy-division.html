@@ -20,124 +20,128 @@
             </div>
 
             <div class="controls-panel">
-                <div class="grid-layout">
-                    <div class="control-group">
-                        <label for="displayWidth">Canvas Width (px)</label>
-                        <input type="number" id="displayWidth" value="1920" min="100" max="2000">
-                        <small>Width of the canvas in pixels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="displayHeight">Canvas Height (px)</label>
-                        <input type="number" id="displayHeight" value="1080" min="100" max="2000">
-                        <small>Height of the canvas in pixels</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="numberLines">Number of Lines</label>
-                        <input type="number" id="numberLines" value="40" min="5" max="100">
-                        <small>How many wavy lines to draw</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="numberSegments">Number of Segments</label>
-                        <input type="number" id="numberSegments" value="50" min="10" max="200">
-                        <small>Smoothness of each line (more = smoother)</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="maxRandomHeight">Max Wave Height</label>
-                        <input type="number" id="maxRandomHeight" value="8" min="1" max="50">
-                        <small>Maximum height of the waves</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="lineWeight">Line Weight (px)</label>
-                        <input type="number" id="lineWeight" value="2" min="1" max="10">
-                        <small>Thickness of the lines</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="bezierWeight">Bezier Weight</label>
-                        <input type="number" id="bezierWeight" value="2" min="1" max="10" step="0.5">
-                        <small>Smoothness of the curves (lower = more smooth)</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="weightDirection">Wave Pattern</label>
-                        <select id="weightDirection">
-                            <option value="random">Random</option>
-                            <option value="center">Center Weighted</option>
-                            <option value="left">Left Weighted</option>
-                            <option value="right">Right Weighted</option>
-                        </select>
-                        <small>Where waves are most prominent</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="backgroundColor">Background Color</label>
-                        <input type="color" id="backgroundColor" value="#000000">
-                        <small>Background color</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="lineColor">Line Color</label>
-                        <input type="color" id="lineColor" value="#ffffff">
-                        <small>Color of the wave lines</small>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label for="fillLines">
-                        <input type="checkbox" id="fillLines" checked>
-                        Fill Lines with Colors
-                    </label>
-                    <small>Fill the area under each line with colors</small>
-                </div>
-
-                <div class="control-group" id="colorModeGroup">
-                    <label for="colorMode">Color Mode</label>
-                    <select id="colorMode">
-                        <option value="random">Random Colors</option>
-                        <option value="zones">Zoned Colors (Beach Scene)</option>
-                    </select>
-                    <small>How to apply colors to the lines</small>
-                </div>
-
-                <div id="randomColorControls">
-                    <div class="control-group" id="customColorsGroup">
-                        <label>Custom Fill Colors</label>
-                        <div id="colorInputs" class="color-inputs">
-                            <div class="color-input-group">
-                                <input type="color" value="#EF476F">
-                                <button type="button" class="remove-color">Remove</button>
+                <details class="control-section">
+                    <summary>Basics</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="displayWidth">Canvas Width (px)</label>
+                                <input type="number" id="displayWidth" value="1920" min="100" max="2000">
+                                <small>Width of the canvas in pixels</small>
                             </div>
-                            <div class="color-input-group">
-                                <input type="color" value="#FFD166">
-                                <button type="button" class="remove-color">Remove</button>
-                            </div>
-                            <div class="color-input-group">
-                                <input type="color" value="#06D6A0">
-                                <button type="button" class="remove-color">Remove</button>
-                            </div>
-                            <div class="color-input-group">
-                                <input type="color" value="#118AB2">
-                                <button type="button" class="remove-color">Remove</button>
-                            </div>
-                            <div class="color-input-group">
-                                <input type="color" value="#073B4C">
-                                <button type="button" class="remove-color">Remove</button>
+
+                            <div class="control-group">
+                                <label for="displayHeight">Canvas Height (px)</label>
+                                <input type="number" id="displayHeight" value="1080" min="100" max="2000">
+                                <small>Height of the canvas in pixels</small>
                             </div>
                         </div>
-                        <div class="color-action-buttons" style="margin-top: 0.5rem;">
-                            <button type="button" class="add-color" id="addColorButton">Add Color</button>
-                            <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
-                        </div>
-                        <small>Colors used to fill under the lines</small>
                     </div>
-                </div>
+                </details>
 
-                <div id="zoneColorControls" style="display: none;">
+                <details class="control-section" open>
+                    <summary>Joy Division</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="numberLines">Number of Lines</label>
+                                <input type="number" id="numberLines" value="40" min="5" max="100">
+                                <small>How many wavy lines to draw</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="numberSegments">Number of Segments</label>
+                                <input type="number" id="numberSegments" value="50" min="10" max="200">
+                                <small>Smoothness of each line (more = smoother)</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="maxRandomHeight">Max Wave Height</label>
+                                <input type="number" id="maxRandomHeight" value="8" min="1" max="50">
+                                <small>Maximum height of the waves</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineWeight">Line Weight (px)</label>
+                                <input type="number" id="lineWeight" value="2" min="1" max="10">
+                                <small>Thickness of the lines</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="bezierWeight">Bezier Weight</label>
+                                <input type="number" id="bezierWeight" value="2" min="1" max="10" step="0.5">
+                                <small>Smoothness of the curves (lower = more smooth)</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="weightDirection">Wave Pattern</label>
+                                <select id="weightDirection">
+                                    <option value="random">Random</option>
+                                    <option value="center">Center Weighted</option>
+                                    <option value="left">Left Weighted</option>
+                                    <option value="right">Right Weighted</option>
+                                </select>
+                                <small>Where waves are most prominent</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="lineColor">Line Color</label>
+                                <input type="color" id="lineColor" value="#ffffff">
+                                <small>Color of the wave lines</small>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="fillLines">
+                                <input type="checkbox" id="fillLines" checked>
+                                Fill Lines with Colors
+                            </label>
+                            <small>Fill the area under each line with colors</small>
+                        </div>
+
+                        <div class="control-group" id="colorModeGroup">
+                            <label for="colorMode">Color Mode</label>
+                            <select id="colorMode">
+                                <option value="random">Random Colors</option>
+                                <option value="zones">Zoned Colors (Beach Scene)</option>
+                            </select>
+                            <small>How to apply colors to the lines</small>
+                        </div>
+
+                        <div id="randomColorControls">
+                            <div class="control-group" id="customColorsGroup">
+                                <label>Custom Fill Colors</label>
+                                <div id="colorInputs" class="color-inputs">
+                                    <div class="color-input-group">
+                                        <input type="color" value="#EF476F">
+                                        <button type="button" class="remove-color">Remove</button>
+                                    </div>
+                                    <div class="color-input-group">
+                                        <input type="color" value="#FFD166">
+                                        <button type="button" class="remove-color">Remove</button>
+                                    </div>
+                                    <div class="color-input-group">
+                                        <input type="color" value="#06D6A0">
+                                        <button type="button" class="remove-color">Remove</button>
+                                    </div>
+                                    <div class="color-input-group">
+                                        <input type="color" value="#118AB2">
+                                        <button type="button" class="remove-color">Remove</button>
+                                    </div>
+                                    <div class="color-input-group">
+                                        <input type="color" value="#073B4C">
+                                        <button type="button" class="remove-color">Remove</button>
+                                    </div>
+                                </div>
+                                <div class="color-action-buttons" style="margin-top: 0.5rem;">
+                                    <button type="button" class="add-color" id="addColorButton">Add Color</button>
+                                    <button type="button" class="secondary" id="importColorsButton">Import from Coolors</button>
+                                </div>
+                                <small>Colors used to fill under the lines</small>
+                            </div>
+                        </div>
+
+                        <div id="zoneColorControls" style="display: none;">
                     <div class="control-group">
                         <label>Color Zones (from top to bottom)</label>
                         <small>Define color zones with individual settings. Each zone covers a percentage of the total lines.</small>
@@ -320,17 +324,34 @@
                             </div>
                         </div>
                         <button type="button" class="add-color" id="addZoneButton" style="margin-top: 0.5rem;">Add Zone</button>
+                        </div>
                     </div>
                 </div>
+                </details>
 
-                <div class="control-group">
-                    <label>Text Overlays</label>
-                    <div id="textOverlayList" class="text-overlay-list"></div>
-                    <div class="text-overlay-actions">
-                        <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#000000">
+                            <small>Background color</small>
+                        </div>
                     </div>
-                    <small>Add text overlays with custom placement, size, font, and shadow styles</small>
-                </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Text Overlays</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <div id="textOverlayList" class="text-overlay-list"></div>
+                            <div class="text-overlay-actions">
+                                <button type="button" class="add-color" id="addTextOverlayButton">Add Text</button>
+                            </div>
+                            <small>Add text overlays with custom placement, size, font, and shadow styles</small>
+                        </div>
+                    </div>
+                </details>
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>
