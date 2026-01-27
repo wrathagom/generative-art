@@ -69,6 +69,7 @@ function generateArt(seed = null) {
         pathsData.push({ color, lineWidth, points });
     }
 
+    drawTextOverlays(ctx, displayWidth, displayHeight);
     setFaviconFromCanvas(canvas);
 }
 
@@ -83,10 +84,12 @@ function downloadSVG() {
 
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
+    const overlaySvg = buildTextOverlaySvg(displayWidth, displayHeight);
 
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>\n`;
     svgContent += `<svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">\n`;
     svgContent += `<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${lastBackgroundColor}"/>\n`;
+    svgContent += overlaySvg.defs;
 
     for (const path of pathsData) {
         const d = path.points.map((point, index) => {
@@ -96,6 +99,7 @@ function downloadSVG() {
         svgContent += `<path d="${d}" stroke="${path.color}" stroke-width="${path.lineWidth}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>\n`;
     }
 
+    svgContent += overlaySvg.content;
     svgContent += '</svg>';
     downloadSvgContent(svgContent, 'lissajous-weave-art.svg');
 }

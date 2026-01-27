@@ -638,6 +638,102 @@ footer {
     border-color: var(--button-primary);
 }
 
+.text-overlay-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.text-overlay-card {
+    background: var(--surface-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.text-overlay-header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.text-overlay-header input[type="text"] {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--input-text);
+}
+
+.text-overlay-header .text-overlay-remove {
+    padding: 0.5rem 1rem;
+    background: var(--danger);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.text-overlay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.text-overlay-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.text-overlay-field label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--muted-text);
+}
+
+.text-overlay-field input[type="number"],
+.text-overlay-field input[type="text"],
+.text-overlay-field select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: var(--input-bg);
+    color: var(--input-text);
+}
+
+.text-overlay-field input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.text-overlay-field input:focus,
+.text-overlay-field select:focus {
+    outline: none;
+    border-color: var(--button-primary);
+}
+
+.text-overlay-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
 .button-group {
     display: flex;
     gap: 1rem;

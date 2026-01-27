@@ -105,6 +105,7 @@ function renderFrame() {
     ctx.fillStyle = lastBackgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(animationBuffer, 0, 0);
+    drawTextOverlays(ctx, canvas.width, canvas.height);
 
     const now = performance.now();
     if (now - lastFaviconUpdate > 1000) {
@@ -273,11 +274,13 @@ function downloadArt() {
 function downloadSVG() {
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
+    const overlaySvg = buildTextOverlaySvg(displayWidth, displayHeight);
 
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">
 <rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${lastBackgroundColor}"/>
 `;
+    svgContent += overlaySvg.defs;
 
     for (const bubble of bubblesData) {
         const fill = bubble.drawMode === 'filled' ? bubble.color : 'none';
@@ -288,6 +291,7 @@ function downloadSVG() {
         svgContent += `<circle cx="${bubble.cx}" cy="${bubble.cy}" r="${bubble.radius}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"${blend}/>\n`;
     }
 
+    svgContent += overlaySvg.content;
     svgContent += '</svg>';
     downloadSvgContent(svgContent, 'bubbles-art.svg');
 }

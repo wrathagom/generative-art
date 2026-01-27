@@ -339,6 +339,7 @@ function animateLongestPath() {
             animationState.currentStep = 0;
         }
 
+        drawTextOverlays(ctx, settings.displayWidth, settings.displayHeight);
         setFaviconFromCanvas(canvas);
         animationId = requestAnimationFrame(frame);
     }
@@ -397,6 +398,7 @@ function animateElimination() {
             animationState.globalStep = 0;
         }
 
+        drawTextOverlays(ctx, settings.displayWidth, settings.displayHeight);
         setFaviconFromCanvas(canvas);
         animationId = requestAnimationFrame(frame);
     }
@@ -594,6 +596,10 @@ function generateArt(seed = null) {
         pathData = [];
     }
 
+    if (animationMode === 'none' || !showPathfinders) {
+        drawTextOverlays(ctx, displayWidth, displayHeight);
+    }
+
     updateToggleButton();
     setFaviconFromCanvas(canvas);
 }
@@ -614,6 +620,7 @@ function downloadSVG() {
     const lineColor = document.getElementById('lineColor').value;
     const fillColor = document.getElementById('fillColor').value;
     const lineGlow = parseFloat(document.getElementById('lineGlow').value) || 0;
+    const overlaySvg = buildTextOverlaySvg(displayWidth, displayHeight);
 
     const hasGlow = lineGlow > 0;
     const lineFilter = hasGlow ? ' filter="url(#line-glow)"' : '';
@@ -634,6 +641,8 @@ function downloadSVG() {
 </defs>
 `;
     }
+
+    svgContent += overlaySvg.defs;
 
     for (const line of linesData) {
         svgContent += `<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="${lineColor}" stroke-width="${strokeWidth}" fill="none"${lineFilter}/>\n`;
@@ -665,6 +674,7 @@ function downloadSVG() {
         svgContent += `<path d="${pathString.trim()}" stroke="${path.color}" stroke-width="${path.width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>\n`;
     }
 
+    svgContent += overlaySvg.content;
     svgContent += '</svg>';
     downloadSvgContent(svgContent, 'diagonal-lines-art.svg');
 }

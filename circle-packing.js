@@ -102,6 +102,7 @@ function generateArt(seed = null) {
     }
 
     ctx.globalAlpha = 1;
+    drawTextOverlays(ctx, displayWidth, displayHeight);
     setFaviconFromCanvas(canvas);
 }
 
@@ -116,10 +117,12 @@ function downloadSVG() {
 
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
+    const overlaySvg = buildTextOverlaySvg(displayWidth, displayHeight);
 
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>\n`;
     svgContent += `<svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">\n`;
     svgContent += `<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${lastBackgroundColor}"/>\n`;
+    svgContent += overlaySvg.defs;
 
     for (const circle of circlesData) {
         const stroke = circle.strokeWidth > 0 ? circle.strokeColor : 'none';
@@ -127,6 +130,7 @@ function downloadSVG() {
         svgContent += `<circle cx="${circle.x.toFixed(2)}" cy="${circle.y.toFixed(2)}" r="${circle.radius.toFixed(2)}" fill="${circle.color}" fill-opacity="${circle.opacity}" stroke="${stroke}" stroke-width="${strokeWidth}"/>\n`;
     }
 
+    svgContent += overlaySvg.content;
     svgContent += '</svg>';
     downloadSvgContent(svgContent, 'circle-packing-art.svg');
 }

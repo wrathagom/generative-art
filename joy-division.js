@@ -319,6 +319,7 @@ function generateArt(seed = null) {
         });
     }
 
+    drawTextOverlays(ctx, displayWidth, displayHeight);
     setFaviconFromCanvas(canvas);
 }
 
@@ -335,11 +336,13 @@ function downloadSVG() {
     const displayWidth = parseInt(document.getElementById('displayWidth').value);
     const displayHeight = parseInt(document.getElementById('displayHeight').value);
     const backgroundColor = document.getElementById('backgroundColor').value;
+    const overlaySvg = buildTextOverlaySvg(displayWidth, displayHeight);
 
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">
 <rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${backgroundColor}"/>
 `;
+    svgContent += overlaySvg.defs;
 
     for (const pathData of pathsData) {
         let pathString = `M ${pathData.points[0].x} ${pathData.points[0].y} `;
@@ -360,6 +363,7 @@ function downloadSVG() {
         svgContent += `<path d="${pathString}" ${fillAttr} stroke="${pathData.strokeColor}" stroke-width="${pathData.strokeWidth}"/>\n`;
     }
 
+    svgContent += overlaySvg.content;
     svgContent += '</svg>';
     downloadSvgContent(svgContent, 'joy-division-art.svg');
 }

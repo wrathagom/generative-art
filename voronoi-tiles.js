@@ -96,6 +96,7 @@ function generateArt(seed = null) {
         }
     }
 
+    drawTextOverlays(ctx, displayWidth, displayHeight);
     setFaviconFromCanvas(canvas);
 }
 
@@ -113,10 +114,12 @@ function downloadSVG() {
     const showBorders = document.getElementById('showBorders').checked;
     const borderWidth = parseFloat(document.getElementById('borderWidth').value);
     const borderColor = document.getElementById('borderColor').value;
+    const overlaySvg = buildTextOverlaySvg(displayWidth, displayHeight);
 
     let svgContent = `<?xml version="1.0" encoding="utf-8" ?>\n`;
     svgContent += `<svg xmlns="http://www.w3.org/2000/svg" width="${displayWidth}" height="${displayHeight}">\n`;
     svgContent += `<rect x="0" y="0" width="${displayWidth}" height="${displayHeight}" fill="${lastBackgroundColor}"/>\n`;
+    svgContent += overlaySvg.defs;
 
     for (const tile of tilesData) {
         const stroke = showBorders && borderWidth > 0 ? borderColor : 'none';
@@ -124,6 +127,7 @@ function downloadSVG() {
         svgContent += `<rect x="${tile.x}" y="${tile.y}" width="${tile.width}" height="${tile.height}" fill="${tile.color}" stroke="${stroke}" stroke-width="${strokeWidth}"/>\n`;
     }
 
+    svgContent += overlaySvg.content;
     svgContent += '</svg>';
     downloadSvgContent(svgContent, 'voronoi-tiles-art.svg');
 }

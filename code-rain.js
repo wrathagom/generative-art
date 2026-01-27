@@ -87,6 +87,8 @@ function drawFrame(timestamp) {
         }
     }
 
+    drawTextOverlays(ctx, settings.width, settings.height);
+
     if (timestamp - lastFaviconUpdate > 1000) {
         setFaviconFromCanvas(canvas);
         lastFaviconUpdate = timestamp;
