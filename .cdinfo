@@ -1,0 +1,11 @@
+# ============================================================
+# This file is used by cd-info to display directory information
+# Learn more: https://github.com/wrathagom/cd-info
+# ============================================================
+# --- END CD-INFO HEADER ---
+
+# Generative Art Repo
+
+To launch run `docker compose up` or `dcul` if you are using docker-alias.
+
+Then visit http://localhost:8080
