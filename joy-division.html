@@ -95,6 +95,44 @@
                 </details>
 
                 <details class="control-section">
+                    <summary>Animation</summary>
+                    <div class="control-section-content">
+                        <div class="grid-layout">
+                            <div class="control-group">
+                                <label for="animationMode">Animation Mode</label>
+                                <select id="animationMode">
+                                    <option value="none" selected>None</option>
+                                    <option value="drift">Gentle Drift</option>
+                                    <option value="sweep">Sweep Phase</option>
+                                    <option value="tide">Noise Tide</option>
+                                    <option value="scroll">Per-Line Scroll</option>
+                                    <option value="all">All Modes</option>
+                                </select>
+                                <small>Animate the wave field</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="animationSpeed">Animation Speed (fps)</label>
+                                <input type="number" id="animationSpeed" value="30" min="1" max="120">
+                                <small>Frames per second for animation</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="tideIntensity">Tide Intensity</label>
+                                <input type="number" id="tideIntensity" value="0.35" min="0" max="2" step="0.05">
+                                <small>Strength of the Noise Tide motion</small>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="exportDuration">Export Duration (s)</label>
+                                <input type="number" id="exportDuration" value="5" min="1" max="60">
+                                <small>Length of exported GIF/WebM</small>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="control-section">
                     <summary>Colors</summary>
                     <div class="control-section-content">
                         <div class="control-group">
@@ -356,8 +394,11 @@
 
                 <div class="button-group">
                     <button id="generateButton">Generate Art</button>
+                    <button id="toggleButton" style="display: none;">Pause</button>
                     <button class="secondary" id="downloadPngButton">Download PNG</button>
                     <button class="secondary" id="downloadSvgButton">Download SVG</button>
+                    <button class="secondary" id="downloadGifButton">Download GIF</button>
+                    <button class="secondary" id="recordWebmButton">Record WebM</button>
                     <button class="secondary" id="shareButton">Share</button>
                     <span id="shareFeedback" class="share-feedback"></span>
                 </div>
