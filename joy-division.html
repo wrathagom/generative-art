@@ -91,6 +91,18 @@
                             </div>
                         </div>
 
+                    </div>
+                </details>
+
+                <details class="control-section">
+                    <summary>Colors</summary>
+                    <div class="control-section-content">
+                        <div class="control-group">
+                            <label for="backgroundColor">Background Color</label>
+                            <input type="color" id="backgroundColor" value="#000000">
+                            <small>Background color</small>
+                        </div>
+
                         <div class="control-group">
                             <label for="fillLines">
                                 <input type="checkbox" id="fillLines" checked>
@@ -142,200 +154,189 @@
                         </div>
 
                         <div id="zoneColorControls" style="display: none;">
-                    <div class="control-group">
-                        <label>Color Zones (from top to bottom)</label>
-                        <small>Define color zones with individual settings. Each zone covers a percentage of the total lines.</small>
-                        <div id="zoneInputs" class="zone-inputs">
-                            <!-- Sky Zone -->
-                            <div class="zone-card">
-                                <div class="zone-header">
-                                    <input type="text" class="zone-name" value="Sky" placeholder="Zone name">
-                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
-                                    <span class="percentage-label">%</span>
-                                    <button type="button" class="zone-remove">Remove</button>
+                            <div class="control-group">
+                                <label>Color Zones (from top to bottom)</label>
+                                <small>Define color zones with individual settings. Each zone covers a percentage of the total lines.</small>
+                                <div id="zoneInputs" class="zone-inputs">
+                                    <!-- Sky Zone -->
+                                    <div class="zone-card">
+                                        <div class="zone-header">
+                                            <input type="text" class="zone-name" value="Sky" placeholder="Zone name">
+                                            <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                            <span class="percentage-label">%</span>
+                                            <button type="button" class="zone-remove">Remove</button>
+                                        </div>
+                                        <div class="zone-settings">
+                                            <div class="zone-setting-row">
+                                                <label>Fill Color</label>
+                                                <input type="color" class="zone-color" value="#87CEEB">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Color</label>
+                                                <input type="color" class="zone-line-color" value="#ffffff">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Segments</label>
+                                                <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Height</label>
+                                                <input type="number" class="zone-wave-height" value="4" min="1" max="50">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Weight</label>
+                                                <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Bezier Weight</label>
+                                                <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Pattern</label>
+                                                <select class="zone-wave-pattern">
+                                                    <option value="random">Random</option>
+                                                    <option value="center">Center</option>
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Grass Zone -->
+                                    <div class="zone-card">
+                                        <div class="zone-header">
+                                            <input type="text" class="zone-name" value="Grass" placeholder="Zone name">
+                                            <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                            <span class="percentage-label">%</span>
+                                            <button type="button" class="zone-remove">Remove</button>
+                                        </div>
+                                        <div class="zone-settings">
+                                            <div class="zone-setting-row">
+                                                <label>Fill Color</label>
+                                                <input type="color" class="zone-color" value="#90EE90">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Color</label>
+                                                <input type="color" class="zone-line-color" value="#ffffff">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Segments</label>
+                                                <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Height</label>
+                                                <input type="number" class="zone-wave-height" value="6" min="1" max="50">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Weight</label>
+                                                <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Bezier Weight</label>
+                                                <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Pattern</label>
+                                                <select class="zone-wave-pattern">
+                                                    <option value="random">Random</option>
+                                                    <option value="center" selected>Center</option>
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Beach Zone -->
+                                    <div class="zone-card">
+                                        <div class="zone-header">
+                                            <input type="text" class="zone-name" value="Beach" placeholder="Zone name">
+                                            <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                            <span class="percentage-label">%</span>
+                                            <button type="button" class="zone-remove">Remove</button>
+                                        </div>
+                                        <div class="zone-settings">
+                                            <div class="zone-setting-row">
+                                                <label>Fill Color</label>
+                                                <input type="color" class="zone-color" value="#F4A460">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Color</label>
+                                                <input type="color" class="zone-line-color" value="#ffffff">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Segments</label>
+                                                <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Height</label>
+                                                <input type="number" class="zone-wave-height" value="8" min="1" max="50">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Weight</label>
+                                                <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Bezier Weight</label>
+                                                <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Pattern</label>
+                                                <select class="zone-wave-pattern">
+                                                    <option value="random">Random</option>
+                                                    <option value="center" selected>Center</option>
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Ocean Zone -->
+                                    <div class="zone-card">
+                                        <div class="zone-header">
+                                            <input type="text" class="zone-name" value="Ocean" placeholder="Zone name">
+                                            <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
+                                            <span class="percentage-label">%</span>
+                                            <button type="button" class="zone-remove">Remove</button>
+                                        </div>
+                                        <div class="zone-settings">
+                                            <div class="zone-setting-row">
+                                                <label>Fill Color</label>
+                                                <input type="color" class="zone-color" value="#1E90FF">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Color</label>
+                                                <input type="color" class="zone-line-color" value="#ffffff">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Segments</label>
+                                                <input type="number" class="zone-segments" value="50" min="10" max="200">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Height</label>
+                                                <input type="number" class="zone-wave-height" value="12" min="1" max="50">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Line Weight</label>
+                                                <input type="number" class="zone-line-weight" value="2" min="1" max="10">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Bezier Weight</label>
+                                                <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
+                                            </div>
+                                            <div class="zone-setting-row">
+                                                <label>Wave Pattern</label>
+                                                <select class="zone-wave-pattern">
+                                                    <option value="random">Random</option>
+                                                    <option value="center" selected>Center</option>
+                                                    <option value="left">Left</option>
+                                                    <option value="right">Right</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="zone-settings">
-                                    <div class="zone-setting-row">
-                                        <label>Fill Color</label>
-                                        <input type="color" class="zone-color" value="#87CEEB">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Color</label>
-                                        <input type="color" class="zone-line-color" value="#ffffff">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Segments</label>
-                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Height</label>
-                                        <input type="number" class="zone-wave-height" value="4" min="1" max="50">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Weight</label>
-                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Bezier Weight</label>
-                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Pattern</label>
-                                        <select class="zone-wave-pattern">
-                                            <option value="random">Random</option>
-                                            <option value="center">Center</option>
-                                            <option value="left">Left</option>
-                                            <option value="right">Right</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                <button type="button" class="add-color" id="addZoneButton" style="margin-top: 0.5rem;">Add Zone</button>
                             </div>
-                            <!-- Grass Zone -->
-                            <div class="zone-card">
-                                <div class="zone-header">
-                                    <input type="text" class="zone-name" value="Grass" placeholder="Zone name">
-                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
-                                    <span class="percentage-label">%</span>
-                                    <button type="button" class="zone-remove">Remove</button>
-                                </div>
-                                <div class="zone-settings">
-                                    <div class="zone-setting-row">
-                                        <label>Fill Color</label>
-                                        <input type="color" class="zone-color" value="#90EE90">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Color</label>
-                                        <input type="color" class="zone-line-color" value="#ffffff">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Segments</label>
-                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Height</label>
-                                        <input type="number" class="zone-wave-height" value="6" min="1" max="50">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Weight</label>
-                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Bezier Weight</label>
-                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Pattern</label>
-                                        <select class="zone-wave-pattern">
-                                            <option value="random">Random</option>
-                                            <option value="center" selected>Center</option>
-                                            <option value="left">Left</option>
-                                            <option value="right">Right</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Beach Zone -->
-                            <div class="zone-card">
-                                <div class="zone-header">
-                                    <input type="text" class="zone-name" value="Beach" placeholder="Zone name">
-                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
-                                    <span class="percentage-label">%</span>
-                                    <button type="button" class="zone-remove">Remove</button>
-                                </div>
-                                <div class="zone-settings">
-                                    <div class="zone-setting-row">
-                                        <label>Fill Color</label>
-                                        <input type="color" class="zone-color" value="#F4A460">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Color</label>
-                                        <input type="color" class="zone-line-color" value="#ffffff">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Segments</label>
-                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Height</label>
-                                        <input type="number" class="zone-wave-height" value="8" min="1" max="50">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Weight</label>
-                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Bezier Weight</label>
-                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Pattern</label>
-                                        <select class="zone-wave-pattern">
-                                            <option value="random">Random</option>
-                                            <option value="center" selected>Center</option>
-                                            <option value="left">Left</option>
-                                            <option value="right">Right</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Ocean Zone -->
-                            <div class="zone-card">
-                                <div class="zone-header">
-                                    <input type="text" class="zone-name" value="Ocean" placeholder="Zone name">
-                                    <input type="number" class="zone-percentage" value="25" min="1" max="100" title="Percentage of lines">
-                                    <span class="percentage-label">%</span>
-                                    <button type="button" class="zone-remove">Remove</button>
-                                </div>
-                                <div class="zone-settings">
-                                    <div class="zone-setting-row">
-                                        <label>Fill Color</label>
-                                        <input type="color" class="zone-color" value="#1E90FF">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Color</label>
-                                        <input type="color" class="zone-line-color" value="#ffffff">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Segments</label>
-                                        <input type="number" class="zone-segments" value="50" min="10" max="200">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Height</label>
-                                        <input type="number" class="zone-wave-height" value="12" min="1" max="50">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Line Weight</label>
-                                        <input type="number" class="zone-line-weight" value="2" min="1" max="10">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Bezier Weight</label>
-                                        <input type="number" class="zone-bezier-weight" value="2" min="1" max="10" step="0.5">
-                                    </div>
-                                    <div class="zone-setting-row">
-                                        <label>Wave Pattern</label>
-                                        <select class="zone-wave-pattern">
-                                            <option value="random">Random</option>
-                                            <option value="center" selected>Center</option>
-                                            <option value="left">Left</option>
-                                            <option value="right">Right</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="add-color" id="addZoneButton" style="margin-top: 0.5rem;">Add Zone</button>
-                        </div>
-                    </div>
-                </div>
-                </details>
-
-                <details class="control-section">
-                    <summary>Colors</summary>
-                    <div class="control-section-content">
-                        <div class="control-group">
-                            <label for="backgroundColor">Background Color</label>
-                            <input type="color" id="backgroundColor" value="#000000">
-                            <small>Background color</small>
                         </div>
                     </div>
                 </details>
